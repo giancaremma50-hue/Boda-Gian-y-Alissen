@@ -493,9 +493,15 @@ let currentFilter = 'all';
 const SITE_URL = location.origin;
 
 function startApp() {
-  firebase.initializeApp(FIREBASE_CONFIG);
-  db = firebase.firestore();
-  loadGuests();
+  try {
+    firebase.initializeApp(FIREBASE_CONFIG);
+    db = firebase.firestore();
+    loadGuests();
+  } catch(e) {
+    console.error('Firebase init error:', e);
+    document.getElementById('table-body').innerHTML =
+      `<tr><td colspan="7" class="msg" style="color:#e07070;">Error al inicializar Firebase:<br><strong>${e.message}</strong><br>Revisa la API key y la configuración.</td></tr>`;
+  }
 }
 
 /* ─── LOAD ─── */
