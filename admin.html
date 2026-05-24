@@ -399,16 +399,6 @@ tbody td {
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 <script>
-/* ─── ACCESO ─── */
-const ADMIN_CODE = 'BODAGIAN2027';
-const params = new URLSearchParams(location.search);
-if (params.get('code') !== ADMIN_CODE) {
-  document.getElementById('denied').style.display = 'flex';
-} else {
-  document.getElementById('app').style.display = '';
-  startApp();
-}
-
 /* ─── FIREBASE ─── */
 const FIREBASE_CONFIG = {
   apiKey:            "AIzaSyBM8idRad2Pn15vpIMysjeD---yyek79KE",
@@ -418,6 +408,16 @@ const FIREBASE_CONFIG = {
   messagingSenderId: "381056607526",
   appId:             "1:381056607526:web:57490a77060f3105dbcde7"
 };
+
+/* ─── ACCESO ─── */
+const ADMIN_CODE = 'BODAGIAN2027';
+const params = new URLSearchParams(location.search);
+if (params.get('code') !== ADMIN_CODE) {
+  document.getElementById('denied').style.display = 'flex';
+} else {
+  document.getElementById('app').style.display = '';
+  startApp();
+}
 
 /* ─── GUEST LIST BASE ─── */
 const BASE_GUESTS = [
