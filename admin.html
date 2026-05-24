@@ -412,12 +412,6 @@ const FIREBASE_CONFIG = {
 /* ─── ACCESO ─── */
 const ADMIN_CODE = 'BODAGIAN2027';
 const params = new URLSearchParams(location.search);
-if (params.get('code') !== ADMIN_CODE) {
-  document.getElementById('denied').style.display = 'flex';
-} else {
-  document.getElementById('app').style.display = '';
-  startApp();
-}
 
 /* ─── GUEST LIST BASE ─── */
 const BASE_GUESTS = [
@@ -739,6 +733,14 @@ function toast(msg) {
   el.classList.add('show');
   clearTimeout(toastTimer);
   toastTimer = setTimeout(() => el.classList.remove('show'), 2500);
+}
+
+/* ─── INICIO ─── */
+if (params.get('code') !== ADMIN_CODE) {
+  document.getElementById('denied').style.display = 'flex';
+} else {
+  document.getElementById('app').style.display = '';
+  startApp();
 }
 </script>
 </body>
