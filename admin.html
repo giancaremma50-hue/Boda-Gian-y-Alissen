@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin — Boda Gian & Alissen</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400;1,600&family=Jost:wght@200;300;400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --black:       #0a0a0a;
+  --white:       #f2f0eb;
+  --green:       #3d5c35;
+  --green-light: #6b8f61;
+  --green-pale:  #b8ccb4;
+  --gold:        #c8a96e;
+  --red:         #c0392b;
+  --surface:     #141a12;
+  --surface2:    #1c251a;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body {
+  background: var(--black);
+  color: var(--white);
+  font-family: 'Jost', sans-serif;
+  font-weight: 300;
+  min-height: 100vh;
+}
+a { color: var(--gold); text-decoration: none; }
+
+/* ── LAYOUT ── */
+header {
+  background: var(--surface);
+  border-bottom: 1px solid var(--green);
+  padding: 20px 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+header h1 {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 26px;
+  font-weight: 300;
+  color: var(--gold);
+  letter-spacing: 2px;
+}
+header span {
+  font-size: 12px;
+  color: var(--green-pale);
+  letter-spacing: 2px;
+}
+main { max-width: 1200px; margin: 0 auto; padding: 32px 20px 60px; }
+
+/* ── STATS ── */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 16px;
+  margin-bottom: 36px;
+}
+.stat-card {
+  background: var(--surface);
+  border: 1px solid var(--green);
+  border-radius: 6px;
+  padding: 20px;
+  text-align: center;
+}
+.stat-card .num {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 40px;
+  font-weight: 300;
+  color: var(--gold);
+  line-height: 1;
+  margin-bottom: 6px;
+}
+.stat-card .lbl {
+  font-size: 10px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--green-pale);
+}
+
+/* ── TOOLBAR ── */
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 20px;
+  align-items: center;
+}
+.filter-btn {
+  background: transparent;
+  border: 1px solid var(--green);
+  color: var(--green-pale);
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-family: 'Jost', sans-serif;
+  font-size: 12px;
+  font-weight: 300;
+  letter-spacing: 2px;
+  cursor: pointer;
+  transition: all .2s;
+}
+.filter-btn.active, .filter-btn:hover {
+  background: var(--green);
+  color: var(--white);
+}
+.spacer { flex: 1; }
+.action-btn {
+  background: transparent;
+  border: 1px solid var(--gold);
+  color: var(--gold);
+  padding: 8px 18px;
+  border-radius: 4px;
+  font-family: 'Jost', sans-serif;
+  font-size: 12px;
+  font-weight: 300;
+  letter-spacing: 2px;
+  cursor: pointer;
+  transition: all .2s;
+}
+.action-btn:hover { background: var(--gold); color: var(--black); }
+.action-btn.green { border-color: var(--green-light); color: var(--green-light); }
+.action-btn.green:hover { background: var(--green-light); color: var(--black); }
+
+/* ── ADD GUEST FORM ── */
+.add-form {
+  background: var(--surface);
+  border: 1px solid var(--green);
+  border-radius: 6px;
+  padding: 20px;
+  margin-bottom: 24px;
+  display: none;
+}
+.add-form.open { display: block; }
+.add-form h3 {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 18px;
+  font-weight: 400;
+  color: var(--gold);
+  margin-bottom: 16px;
+}
+.add-form-row {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  align-items: flex-end;
+}
+.add-form-row .fg { display: flex; flex-direction: column; gap: 6px; flex: 1; min-width: 200px; }
+.add-form label {
+  font-size: 10px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--green-pale);
+}
+.add-form input, .add-form select {
+  background: var(--surface2);
+  border: 1px solid var(--green);
+  color: var(--white);
+  padding: 10px 14px;
+  border-radius: 4px;
+  font-family: 'Jost', sans-serif;
+  font-size: 14px;
+  font-weight: 300;
+  outline: none;
+  transition: border-color .2s;
+}
+.add-form input:focus, .add-form select:focus { border-color: var(--gold); }
+.add-form select option { background: var(--surface2); }
+
+/* ── TABLE ── */
+.table-wrap { overflow-x: auto; }
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+thead th {
+  background: var(--surface);
+  color: var(--green-pale);
+  font-size: 10px;
+  font-weight: 300;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  padding: 12px 14px;
+  text-align: left;
+  border-bottom: 1px solid var(--green);
+  white-space: nowrap;
+}
+tbody tr {
+  border-bottom: 1px solid rgba(61,92,53,.3);
+  transition: background .15s;
+}
+tbody tr:hover { background: var(--surface2); }
+tbody td {
+  padding: 12px 14px;
+  vertical-align: middle;
+  color: var(--white);
+}
+
+.badge {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 10px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  font-weight: 300;
+}
+.badge-confirmed  { background: rgba(61,92,53,.4); color: var(--green-pale); }
+.badge-no         { background: rgba(192,57,43,.2); color: #e07070; }
+.badge-pending    { background: rgba(200,169,110,.15); color: var(--gold); }
+
+.companions-list {
+  font-size: 11px;
+  color: var(--green-pale);
+  line-height: 1.6;
+}
+
+.row-actions { display: flex; gap: 6px; }
+.icon-btn {
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--green-pale);
+  padding: 4px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 13px;
+  transition: all .2s;
+  font-family: inherit;
+}
+.icon-btn:hover { border-color: var(--green); color: var(--white); }
+.icon-btn.del:hover { border-color: #e07070; color: #e07070; }
+.icon-btn.copy:hover { border-color: var(--gold); color: var(--gold); }
+
+/* Inline edit */
+.edit-input {
+  background: var(--surface2);
+  border: 1px solid var(--gold);
+  color: var(--white);
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-family: 'Jost', sans-serif;
+  font-size: 13px;
+  font-weight: 300;
+  width: 100%;
+  outline: none;
+}
+.edit-select {
+  background: var(--surface2);
+  border: 1px solid var(--gold);
+  color: var(--white);
+  padding: 4px 6px;
+  border-radius: 4px;
+  font-family: 'Jost', sans-serif;
+  font-size: 13px;
+  font-weight: 300;
+  outline: none;
+}
+.edit-select option { background: var(--surface2); }
+
+/* ── LOADING / EMPTY ── */
+.msg {
+  text-align: center;
+  padding: 40px;
+  color: var(--green-pale);
+  font-size: 14px;
+  letter-spacing: 1px;
+}
+
+/* ── TOAST ── */
+#toast {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  background: var(--surface);
+  border: 1px solid var(--green);
+  color: var(--white);
+  padding: 12px 20px;
+  border-radius: 6px;
+  font-size: 13px;
+  letter-spacing: 1px;
+  opacity: 0;
+  transition: opacity .3s;
+  pointer-events: none;
+  z-index: 999;
+}
+#toast.show { opacity: 1; }
+
+/* ── DENIED ── */
+#denied {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  gap: 12px;
+  text-align: center;
+}
+#denied h2 {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 28px;
+  color: var(--gold);
+}
+#denied p { color: var(--green-pale); font-size: 13px; }
+</style>
+</head>
+<body>
+
+<div id="denied" style="display:none;">
+  <h2>Acceso denegado</h2>
+  <p>Este panel requiere un código de acceso válido.</p>
+</div>
+
+<div id="app" style="display:none;">
+  <header>
+    <div>
+      <h1>Gian &amp; Alissen</h1>
+      <span>PANEL DE ADMINISTRACIÓN · 12 · 02 · 2027</span>
+    </div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;">
+      <button class="action-btn green" onclick="toggleAddForm()">+ Agregar invitado</button>
+      <button class="action-btn green" onclick="initGuestList()" id="init-btn">Inicializar lista base</button>
+      <button class="action-btn" onclick="exportCSV()">Exportar CSV</button>
+    </div>
+  </header>
+
+  <main>
+    <!-- Stats -->
+    <div class="stats-grid">
+      <div class="stat-card"><div class="num" id="st-total">—</div><div class="lbl">Total invitaciones</div></div>
+      <div class="stat-card"><div class="num" id="st-confirmed">—</div><div class="lbl">Confirmados</div></div>
+      <div class="stat-card"><div class="num" id="st-attending">—</div><div class="lbl">Asistirán</div></div>
+      <div class="stat-card"><div class="num" id="st-companions">—</div><div class="lbl">Acompañantes</div></div>
+      <div class="stat-card"><div class="num" id="st-pending">—</div><div class="lbl">Pendientes</div></div>
+      <div class="stat-card"><div class="num" id="st-no">—</div><div class="lbl">No asisten</div></div>
+    </div>
+
+    <!-- Add form -->
+    <div class="add-form" id="add-form">
+      <h3>Agregar invitado</h3>
+      <div class="add-form-row">
+        <div class="fg">
+          <label>Nombre completo</label>
+          <input type="text" id="new-name" placeholder="Ej. Joel Gudiel y Esposa" autocomplete="off">
+        </div>
+        <div class="fg" style="flex:0;min-width:180px;">
+          <label>Acompañantes permitidos</label>
+          <select id="new-max">
+            <option value="0">0 — Solo</option>
+            <option value="1" selected>1 acompañante</option>
+            <option value="2">2 acompañantes</option>
+            <option value="3">3 acompañantes</option>
+          </select>
+        </div>
+        <button class="action-btn green" onclick="addGuest()" style="padding:10px 20px;height:42px;">Guardar</button>
+        <button class="action-btn" onclick="toggleAddForm()" style="padding:10px 20px;height:42px;">Cancelar</button>
+      </div>
+    </div>
+
+    <!-- Filters + actions -->
+    <div class="toolbar">
+      <button class="filter-btn active" onclick="setFilter('all',this)">Todos</button>
+      <button class="filter-btn" onclick="setFilter('confirmed',this)">Confirmados</button>
+      <button class="filter-btn" onclick="setFilter('attending',this)">Asistirán</button>
+      <button class="filter-btn" onclick="setFilter('pending',this)">Pendientes</button>
+      <button class="filter-btn" onclick="setFilter('no',this)">No asisten</button>
+    </div>
+
+    <!-- Table -->
+    <div class="table-wrap">
+      <table id="guests-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Nombre</th>
+            <th>Acomp. permitidos</th>
+            <th>Estado</th>
+            <th>Acompañantes registrados</th>
+            <th>Fecha confirmación</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody id="table-body">
+          <tr><td colspan="7" class="msg">Cargando…</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </main>
+</div>
+
+<div id="toast"></div>
+
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script>
+/* ─── ACCESO ─── */
+const ADMIN_CODE = 'BODAGIAN2027';
+const params = new URLSearchParams(location.search);
+if (params.get('code') !== ADMIN_CODE) {
+  document.getElementById('denied').style.display = 'flex';
+} else {
+  document.getElementById('app').style.display = '';
+  startApp();
+}
+
+/* ─── FIREBASE ─── */
+const FIREBASE_CONFIG = {
+  apiKey:            "REPLACE_WITH_YOUR_API_KEY",
+  authDomain:        "REPLACE_WITH_YOUR_PROJECT_ID.firebaseapp.com",
+  projectId:         "REPLACE_WITH_YOUR_PROJECT_ID",
+  storageBucket:     "REPLACE_WITH_YOUR_PROJECT_ID.appspot.com",
+  messagingSenderId: "REPLACE_WITH_YOUR_MESSAGING_SENDER_ID",
+  appId:             "REPLACE_WITH_YOUR_APP_ID"
+};
+
+/* ─── GUEST LIST BASE ─── */
+const BASE_GUESTS = [
+  { nombre: "Joel Gudiel y Esposa",       maxAcompanantes: 1 },
+  { nombre: "Julia Cetino y Familia",     maxAcompanantes: 2 },
+  { nombre: "Aron Franco",               maxAcompanantes: 1 },
+  { nombre: "Olimpia Cetino y Favilia",  maxAcompanantes: 1 },
+  { nombre: "Zulma Muñoz y Esposo",      maxAcompanantes: 1 },
+  { nombre: "Maria Jose Muñoz",          maxAcompanantes: 1 },
+  { nombre: "Gilma Cetino y Esposo",     maxAcompanantes: 1 },
+  { nombre: "Melissa Veliz y Esposo",    maxAcompanantes: 1 },
+  { nombre: "Yosseline Veliz",           maxAcompanantes: 1 },
+  { nombre: "Isabel Fuentes",            maxAcompanantes: 0 },
+  { nombre: "Morena Lam",               maxAcompanantes: 1 },
+  { nombre: "Rene Lam",                 maxAcompanantes: 0 },
+  { nombre: "Rebeca Lam",               maxAcompanantes: 0 },
+  { nombre: "Sergio Lam",               maxAcompanantes: 0 },
+  { nombre: "Cindy Lam y Esposo",        maxAcompanantes: 1 },
+  { nombre: "Marcela Lam y Familia",     maxAcompanantes: 1 },
+  { nombre: "Keila Lam",                maxAcompanantes: 1 },
+  { nombre: "Mario Lam",                maxAcompanantes: 1 },
+  { nombre: "Ivan Escobar",             maxAcompanantes: 1 },
+  { nombre: "Antonio Arriaga",          maxAcompanantes: 1 },
+  { nombre: "Diana Karen Lemus",        maxAcompanantes: 1 },
+  { nombre: "Ana Tellez",               maxAcompanantes: 1 },
+  { nombre: "Karin De Leon",            maxAcompanantes: 1 },
+  { nombre: "Gabriela Coj",             maxAcompanantes: 0 },
+  { nombre: "Monica Muralles",          maxAcompanantes: 0 },
+  { nombre: "Maricela Velasquez",       maxAcompanantes: 0 },
+  { nombre: "Yuly Flores",              maxAcompanantes: 0 },
+  { nombre: "Jenifer Cobo",             maxAcompanantes: 0 },
+  { nombre: "Karla Fernandez",          maxAcompanantes: 1 },
+  { nombre: "Luis Eduardo Arenas",      maxAcompanantes: 1 },
+  { nombre: "Fernando Mancilla",        maxAcompanantes: 1 },
+  { nombre: "Shirley Del Aguila",       maxAcompanantes: 1 },
+  { nombre: "Melvin Morales",           maxAcompanantes: 1 },
+  { nombre: "Carlos Monterroso",        maxAcompanantes: 1 },
+  { nombre: "David Monterroso",         maxAcompanantes: 1 },
+  { nombre: "Cedric Monterroso y Fam",  maxAcompanantes: 3 },
+  { nombre: "Randy Monterroso y Espo",  maxAcompanantes: 1 },
+  { nombre: "Carla Monterroso y Espos", maxAcompanantes: 1 },
+  { nombre: "Dayra y Fabian Monterroso",maxAcompanantes: 1 },
+  { nombre: "Epifanio Monterroso",      maxAcompanantes: 0 },
+  { nombre: "Yasmina Escobedo y Fam",   maxAcompanantes: 2 },
+  { nombre: "Edy Perez",               maxAcompanantes: 1 },
+  { nombre: "Saul Montenegro",         maxAcompanantes: 1 },
+  { nombre: "Nestor Lopez",            maxAcompanantes: 1 },
+  { nombre: "Luisa Rios",              maxAcompanantes: 1 },
+  { nombre: "Katerine Santos",         maxAcompanantes: 0 },
+  { nombre: "Monica Xocoy",            maxAcompanantes: 0 },
+  { nombre: "Walter Martinez",         maxAcompanantes: 1 },
+  { nombre: "Sergio Enriquez",         maxAcompanantes: 0 },
+  { nombre: "Lilian Tanchez",          maxAcompanantes: 1 },
+  { nombre: "Jairo Valenciano",        maxAcompanantes: 1 },
+  { nombre: "Ivonne Oviedo",           maxAcompanantes: 1 },
+  { nombre: "Sergio Morales",          maxAcompanantes: 1 },
+  { nombre: "Francisco Bautista y Esp",maxAcompanantes: 1 },
+  { nombre: "Jonathan Rodrigo",        maxAcompanantes: 0 },
+  { nombre: "Heizel Chinchilla",       maxAcompanantes: 1 },
+  { nombre: "Jeimy Monterroso y Fami", maxAcompanantes: 3 },
+  { nombre: "Astrid Rodas y Esposo",   maxAcompanantes: 1 },
+  { nombre: "Jose Diaz",               maxAcompanantes: 1 },
+  { nombre: "Sigrid",                  maxAcompanantes: 1 },
+  { nombre: "Aneyka Papa",             maxAcompanantes: 1 },
+  { nombre: "Claudia Marisol Castella",maxAcompanantes: 1 },
+  { nombre: "Miguel Roldan y Esposa",  maxAcompanantes: 1 }
+];
+
+/* ─── APP STATE ─── */
+let db;
+let allGuests = [];
+let currentFilter = 'all';
+const SITE_URL = location.origin;
+
+function startApp() {
+  firebase.initializeApp(FIREBASE_CONFIG);
+  db = firebase.firestore();
+  loadGuests();
+}
+
+/* ─── LOAD ─── */
+function loadGuests() {
+  db.collection('guests').onSnapshot(snap => {
+    allGuests = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    allGuests.sort((a, b) => a.nombre.localeCompare(b.nombre));
+    updateStats();
+    renderTable();
+  }, err => {
+    document.getElementById('table-body').innerHTML =
+      '<tr><td colspan="7" class="msg">Error al cargar datos. Verifica la configuración de Firebase.</td></tr>';
+  });
+}
+
+/* ─── STATS ─── */
+function updateStats() {
+  const confirmed  = allGuests.filter(g => g.confirmado);
+  const attending  = allGuests.filter(g => g.asistira);
+  const pending    = allGuests.filter(g => !g.confirmado);
+  const no         = allGuests.filter(g => g.confirmado && !g.asistira);
+  const companions = attending.reduce((s, g) => s + (g.acompanantes ? g.acompanantes.length : 0), 0);
+  document.getElementById('st-total').textContent     = allGuests.length;
+  document.getElementById('st-confirmed').textContent = confirmed.length;
+  document.getElementById('st-attending').textContent = attending.length;
+  document.getElementById('st-companions').textContent= companions;
+  document.getElementById('st-pending').textContent   = pending.length;
+  document.getElementById('st-no').textContent        = no.length;
+}
+
+/* ─── FILTER ─── */
+function setFilter(f, btn) {
+  currentFilter = f;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderTable();
+}
+
+function filteredGuests() {
+  switch (currentFilter) {
+    case 'confirmed': return allGuests.filter(g => g.confirmado);
+    case 'attending': return allGuests.filter(g => g.asistira);
+    case 'pending':   return allGuests.filter(g => !g.confirmado);
+    case 'no':        return allGuests.filter(g => g.confirmado && !g.asistira);
+    default:          return allGuests;
+  }
+}
+
+/* ─── RENDER TABLE ─── */
+function renderTable() {
+  const tbody = document.getElementById('table-body');
+  const list  = filteredGuests();
+  if (list.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="7" class="msg">Sin resultados</td></tr>';
+    return;
+  }
+  tbody.innerHTML = list.map((g, i) => {
+    let badge = '';
+    if (!g.confirmado)      badge = '<span class="badge badge-pending">Pendiente</span>';
+    else if (g.asistira)    badge = '<span class="badge badge-confirmed">Asistirá ✓</span>';
+    else                    badge = '<span class="badge badge-no">No asiste</span>';
+
+    const comps = (g.acompanantes && g.acompanantes.length)
+      ? '<div class="companions-list">' + g.acompanantes.join('<br>') + '</div>'
+      : '<span style="color:rgba(255,255,255,.3);font-size:11px;">—</span>';
+
+    const fecha = g.confirmadoEn
+      ? (g.confirmadoEn.toDate ? g.confirmadoEn.toDate().toLocaleString('es-GT') : '—')
+      : '—';
+
+    const invLink = SITE_URL + '/index.html?inv=' + g.id;
+
+    return `<tr id="row-${g.id}">
+      <td style="color:var(--green-pale);font-size:11px;">${i + 1}</td>
+      <td><strong>${esc(g.nombre)}</strong></td>
+      <td style="text-align:center;">${g.maxAcompanantes}</td>
+      <td>${badge}</td>
+      <td>${comps}</td>
+      <td style="font-size:11px;color:var(--green-pale);">${fecha}</td>
+      <td>
+        <div class="row-actions">
+          <button class="icon-btn copy" title="Copiar link" onclick="copyLink('${g.id}')">🔗</button>
+          <button class="icon-btn" title="Editar" onclick="startEdit('${g.id}')">✏️</button>
+          <button class="icon-btn del" title="Eliminar" onclick="deleteGuest('${g.id}', '${esc(g.nombre)}')">🗑️</button>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+/* ─── COPY LINK ─── */
+function copyLink(id) {
+  const link = SITE_URL + '/index.html?inv=' + id;
+  navigator.clipboard.writeText(link).then(() => toast('Link copiado ✓'));
+}
+
+/* ─── INLINE EDIT ─── */
+function startEdit(id) {
+  const g = allGuests.find(x => x.id === id);
+  if (!g) return;
+  const row = document.getElementById('row-' + id);
+  row.innerHTML = `
+    <td style="color:var(--green-pale);font-size:11px;">✏️</td>
+    <td><input class="edit-input" id="edit-name-${id}" value="${esc(g.nombre)}"></td>
+    <td>
+      <select class="edit-select" id="edit-max-${id}">
+        <option value="0" ${g.maxAcompanantes===0?'selected':''}>0</option>
+        <option value="1" ${g.maxAcompanantes===1?'selected':''}>1</option>
+        <option value="2" ${g.maxAcompanantes===2?'selected':''}>2</option>
+        <option value="3" ${g.maxAcompanantes===3?'selected':''}>3</option>
+      </select>
+    </td>
+    <td colspan="3" style="color:var(--green-pale);font-size:11px;">Editando…</td>
+    <td>
+      <div class="row-actions">
+        <button class="icon-btn copy" onclick="saveEdit('${id}')">💾 Guardar</button>
+        <button class="icon-btn" onclick="renderTable()">✕</button>
+      </div>
+    </td>`;
+}
+
+async function saveEdit(id) {
+  const nombre         = document.getElementById('edit-name-' + id).value.trim();
+  const maxAcompanantes = parseInt(document.getElementById('edit-max-' + id).value);
+  if (!nombre) { toast('El nombre no puede estar vacío'); return; }
+  try {
+    await db.collection('guests').doc(id).update({ nombre, maxAcompanantes });
+    toast('Cambios guardados ✓');
+  } catch(e) { toast('Error al guardar'); }
+}
+
+/* ─── DELETE ─── */
+async function deleteGuest(id, nombre) {
+  if (!confirm('¿Eliminar a ' + nombre + '? Esta acción no se puede deshacer.')) return;
+  try {
+    await db.collection('guests').doc(id).delete();
+    toast('Invitado eliminado');
+  } catch(e) { toast('Error al eliminar'); }
+}
+
+/* ─── ADD GUEST ─── */
+function toggleAddForm() {
+  const f = document.getElementById('add-form');
+  f.classList.toggle('open');
+}
+
+async function addGuest() {
+  const nombre          = document.getElementById('new-name').value.trim();
+  const maxAcompanantes = parseInt(document.getElementById('new-max').value);
+  if (!nombre) { toast('Ingresa un nombre'); return; }
+  try {
+    await db.collection('guests').add({
+      nombre,
+      maxAcompanantes,
+      confirmado:   false,
+      asistira:     null,
+      acompanantes: [],
+      confirmadoEn: null
+    });
+    document.getElementById('new-name').value = '';
+    document.getElementById('new-max').value  = '1';
+    document.getElementById('add-form').classList.remove('open');
+    toast('Invitado agregado ✓');
+  } catch(e) { toast('Error al agregar'); }
+}
+
+/* ─── INIT LIST ─── */
+async function initGuestList() {
+  const snap = await db.collection('guests').limit(1).get();
+  if (!snap.empty) {
+    if (!confirm('Ya hay invitados en la base de datos.\n¿Agregar igualmente los 63 invitados base?')) return;
+  }
+  const btn = document.getElementById('init-btn');
+  btn.disabled = true;
+  btn.textContent = 'Cargando…';
+  try {
+    const batch = db.batch();
+    BASE_GUESTS.forEach(g => {
+      const ref = db.collection('guests').doc();
+      batch.set(ref, {
+        nombre:        g.nombre,
+        maxAcompanantes: g.maxAcompanantes,
+        confirmado:    false,
+        asistira:      null,
+        acompanantes:  [],
+        confirmadoEn:  null
+      });
+    });
+    await batch.commit();
+    toast('63 invitados cargados ✓');
+  } catch(e) {
+    toast('Error al cargar la lista');
+  }
+  btn.disabled = false;
+  btn.textContent = 'Inicializar lista base';
+}
+
+/* ─── EXPORT CSV ─── */
+function exportCSV() {
+  const header = ['Nombre','Acompañantes permitidos','Estado','Asistirá','Acompañantes registrados','Fecha confirmación','Link invitación'];
+  const rows   = allGuests.map(g => {
+    const estado = !g.confirmado ? 'Pendiente' : (g.asistira ? 'Asistirá' : 'No asiste');
+    const fecha  = g.confirmadoEn
+      ? (g.confirmadoEn.toDate ? g.confirmadoEn.toDate().toLocaleString('es-GT') : '') : '';
+    const link   = SITE_URL + '/index.html?inv=' + g.id;
+    const comps  = (g.acompanantes || []).join(' | ');
+    return [g.nombre, g.maxAcompanantes, estado, g.asistira ? 'Sí' : (g.confirmado ? 'No' : '—'), comps, fecha, link];
+  });
+  const csv = [header, ...rows].map(r => r.map(c => '"' + String(c).replace(/"/g,'""') + '"').join(',')).join('\n');
+  const blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8;' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href     = url;
+  a.download = 'invitados-boda-' + new Date().toISOString().slice(0,10) + '.csv';
+  a.click();
+  URL.revokeObjectURL(url);
+  toast('CSV descargado ✓');
+}
+
+/* ─── TOAST ─── */
+let toastTimer;
+function toast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 2500);
+}
+</script>
+</body>
+</html>
