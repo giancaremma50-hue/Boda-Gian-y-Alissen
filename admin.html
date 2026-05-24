@@ -500,14 +500,22 @@ function startApp() {
 
 /* ─── LOAD ─── */
 function loadGuests() {
+  const hangTimeout = setTimeout(() => {
+    document.getElementById('table-body').innerHTML =
+      '<tr><td colspan="7" class="msg" style="color:#e07070;">Sin respuesta de Firebase después de 12 segundos.<br>Posible causa: API key inválida o Firestore no habilitado.<br>Abre la consola del navegador (F12) para más detalles.</td></tr>';
+  }, 12000);
+
   db.collection('guests').onSnapshot(snap => {
+    clearTimeout(hangTimeout);
     allGuests = snap.docs.map(d => ({ id: d.id, ...d.data() }));
     allGuests.sort((a, b) => a.nombre.localeCompare(b.nombre));
     updateStats();
     renderTable();
   }, err => {
+    clearTimeout(hangTimeout);
+    console.error('Firestore read error:', err);
     document.getElementById('table-body').innerHTML =
-      '<tr><td colspan="7" class="msg">Error al cargar datos. Verifica la configuración de Firebase.</td></tr>';
+      `<tr><td colspan="7" class="msg" style="color:#e07070;">Error Firestore: <strong>${err.code}</strong><br>${err.message}</td></tr>`;
   });
 }
 
@@ -661,7 +669,7 @@ async function addGuest() {
     document.getElementById('new-max').value  = '1';
     document.getElementById('add-form').classList.remove('open');
     toast('Invitado agregado ✓');
-  } catch(e) { toast('Error al agregar'); }
+  } catch(e) { console.error('Add guest error:', e); toast('Error: ' + (e.code || e.message || 'desconocido')); }
 }
 
 /* ─── INIT LIST ─── */
