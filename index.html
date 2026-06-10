@@ -588,10 +588,20 @@ body {
   color: var(--gold);
   margin-bottom: 16px;
 }
-#form-already h3 { margin-bottom: 12px; font-size: 22px; }
-#form-already p  { color: var(--green-pale); font-size: 19.5px; line-height: 1.7; }
-#success-wrap h3 { margin-bottom: 12px; font-size: 22px; }
-#success-wrap p  { color: var(--green-pale); font-size: 19.5px; line-height: 1.7; }
+#form-already h3, #success-wrap h3 {
+  margin-bottom: 16px;
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-weight: 300;
+  font-size: clamp(18px, 5vw, 22px);
+  color: var(--white);
+  line-height: 1.35;
+}
+#form-already p, #success-wrap p {
+  color: var(--green-pale);
+  font-size: 15.5px;
+  line-height: 1.8;
+}
 
 .thanks-pyramid { margin-top: 24px; text-align: center; }
 .thanks-names {
@@ -672,11 +682,12 @@ body {
     <!-- Estado: ya confirmado -->
     <div id="form-already" style="display:none;">
       <div class="check">✦</div>
-      <h3>¡Ya estás confirmado!</h3>
+      <h3>¡Gracias por reservar<br>esta fecha con nosotros!</h3>
       <p id="already-msg"></p>
+      <p>Nos llena de alegría saber que nos acompañarás.<br>Muy pronto compartiremos contigo todos los<br>detalles de nuestra celebración.</p>
       <div class="thanks-pyramid">
-        <p class="thanks-names">Gian &amp; Alissen</p>
-        <p class="thanks-msg">te esperamos</p>
+        <p class="thanks-names">Con cariño,</p>
+        <p class="thanks-msg">Gian &amp; Alissen 🤍✨</p>
         <p class="thanks-date">12 · 02 · 2027</p>
       </div>
     </div>
@@ -684,11 +695,11 @@ body {
     <!-- Estado: éxito tras enviar -->
     <div id="success-wrap" style="display:none;">
       <div class="check">✦</div>
-      <h3>¡Gracias!</h3>
-      <p>Tu confirmación fue recibida<br>con mucho cariño</p>
+      <h3>¡Gracias por reservar<br>esta fecha con nosotros!</h3>
+      <p>Nos llena de alegría saber que nos acompañarás.<br>Muy pronto compartiremos contigo todos los<br>detalles de nuestra celebración.</p>
       <div class="thanks-pyramid">
-        <p class="thanks-names">Gian &amp; Alissen</p>
-        <p class="thanks-msg">te esperamos</p>
+        <p class="thanks-names">Con cariño,</p>
+        <p class="thanks-msg">Gian &amp; Alissen 🤍✨</p>
         <p class="thanks-date">12 · 02 · 2027</p>
       </div>
     </div>
