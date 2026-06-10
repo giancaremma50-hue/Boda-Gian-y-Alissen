@@ -26,39 +26,67 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-/* ─── SECCIONES ─── */
-section {
-  position: relative;
-  min-height: 100svh;
+/* ─── CARD STACK ─── */
+#card-stack { position: relative; }
+
+.card {
+  position: sticky;
+  top: 0;
+  height: 100svh;
   width: 100%;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  overflow: hidden;
-}
-
-/* Fondo de foto con parallax suave */
-.bg-photo {
-  position: absolute;
-  inset: -10%;
-  background-size: cover;
-  background-position: center;
-  transform: scale(1.1);
-  transition: transform 0.1s linear;
+  transform-origin: top center;
   will-change: transform;
 }
-.bg-photo::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: rgba(0,0,0,0.52);
+
+.card:nth-child(1) { z-index: 1; }
+.card:nth-child(2) { z-index: 2; }
+.card:nth-child(3) { z-index: 3; }
+.card:nth-child(4) { z-index: 4; }
+.card:nth-child(5) { z-index: 5; }
+.card:nth-child(6) { z-index: 6; }
+.card:nth-child(7) { z-index: 7; }
+.card:nth-child(8) { z-index: 8; }
+
+.card-photo {
+  background-size: cover;
+  background-position: center;
 }
 
-/* ─── HERO ─── */
-#s-invitacion .bg-photo { background-image: url('/photos/invitacion-iglesia.jpg'); }
-#s-dresscode .bg-photo { background-image: url('/photos/dresscode-escalones.jpg'); }
+.card-text {
+  background: var(--black);
+}
 
+/* Hero: overlay oscuro para legibilidad del texto */
+.photo-overlay-hero {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.48);
+  z-index: 1;
+}
+
+/* Fotos limpias: solo vignette sutil en bordes */
+.photo-vignette {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at center, transparent 55%, rgba(0,0,0,0.14) 100%);
+  z-index: 1;
+}
+
+/* Hero single Ken Burns */
+@keyframes kenburns-single {
+  from { background-size: 100%; }
+  to   { background-size: 108%; }
+}
+#s-hero {
+  animation: kenburns-single 14s ease-out forwards;
+}
+
+/* ─── SECTION CONTENT ─── */
 .section-content {
   position: relative;
   z-index: 2;
@@ -160,15 +188,7 @@ section {
   50%     { opacity: 1;   transform: scaleY(1.15); }
 }
 
-/* ─── INVITACIÓN ─── */
-.section-label {
-  font-size: 9.5px;
-  letter-spacing: 6px;
-  text-transform: uppercase;
-  color: var(--green-light);
-  margin-bottom: 28px;
-  font-weight: 300;
-}
+/* ─── FECHA ─── */
 .big-date {
   font-family: 'Cormorant Garamond', serif;
   font-size: clamp(37.5px, 12vw, 69.5px);
@@ -176,16 +196,13 @@ section {
   line-height: 1.1;
   letter-spacing: 2px;
 }
-.big-date em { font-style: italic; color: var(--green-pale); display: block; font-size: 0.55em; letter-spacing: 4px; margin-bottom: 4px; }
-.time-venue {
-  margin-top: 20px;
-  font-family: 'Jost', sans-serif;
-  font-weight: 200;
-  font-size: 12.5px;
-  letter-spacing: 4px;
-  text-transform: uppercase;
+.big-date em {
+  font-style: italic;
   color: var(--green-pale);
-  line-height: 2;
+  display: block;
+  font-size: 0.55em;
+  letter-spacing: 4px;
+  margin-bottom: 4px;
 }
 .venue-name {
   font-family: 'Cormorant Garamond', serif;
@@ -196,58 +213,7 @@ section {
   font-weight: 300;
 }
 
-/* ─── DRESSCODE ─── */
-.dresscode-box {
-  border: 1px solid rgba(255,255,255,0.15);
-  border-top: 1px solid var(--green);
-  border-bottom: 1px solid var(--green);
-  padding: 32px 28px;
-  width: min(320px, 85vw);
-  text-align: center;
-}
-.dresscode-title {
-  font-family: 'Cormorant Garamond', serif;
-  font-size: clamp(29.5px, 8vw, 43.5px);
-  font-weight: 300;
-  font-style: italic;
-  margin-bottom: 16px;
-}
-.dresscode-rule {
-  font-size: 10.5px;
-  letter-spacing: 5px;
-  text-transform: uppercase;
-  color: var(--green-light);
-  margin-bottom: 20px;
-  font-weight: 300;
-}
-.bw-swatches {
-  display: flex;
-  justify-content: center;
-  gap: 12px;
-  margin: 16px 0;
-}
-.swatch {
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  border: 1px solid rgba(255,255,255,0.2);
-}
-.swatch.negro { background: #0a0a0a; border-color: rgba(255,255,255,0.4); }
-.swatch.blanco { background: #f2f0eb; }
-.dresscode-note {
-  font-family: 'Cormorant Garamond', serif;
-  font-style: italic;
-  font-size: 16.5px;
-  color: rgba(242,240,235,0.65);
-  line-height: 1.6;
-  margin-top: 12px;
-}
-
 /* ─── FRASE CONMEMORATIVA ─── */
-#s-frase {
-  background: var(--black);
-  min-height: 60svh;
-}
 .frase-grande {
   font-family: 'Cormorant Garamond', serif;
   font-style: italic;
@@ -270,6 +236,8 @@ section {
 #s-form {
   background: linear-gradient(180deg, #0a0a0a 0%, #0e1a0e 100%);
   min-height: 100svh;
+  position: relative;
+  z-index: 9;
 }
 .form-title {
   font-family: 'Cormorant Garamond', serif;
@@ -286,13 +254,8 @@ section {
   margin-bottom: 36px;
   font-weight: 200;
 }
-.form-wrap {
-  width: min(400px, 88vw);
-}
-.fgroup {
-  margin-bottom: 20px;
-  text-align: left;
-}
+.form-wrap { width: min(400px, 88vw); }
+.fgroup { margin-bottom: 20px; text-align: left; }
 .fgroup label {
   display: block;
   font-size: 9.5px;
@@ -320,12 +283,7 @@ section {
 .fgroup input:focus { border-bottom-color: var(--green-light); }
 .fgroup select { cursor: pointer; background-color: #0e1a0e; }
 .fgroup select option { background: #0e1a0e; }
-
-.radio-row {
-  display: flex;
-  gap: 10px;
-  margin-top: 4px;
-}
+.radio-row { display: flex; gap: 10px; margin-top: 4px; }
 .ropt {
   flex: 1;
   padding: 11px 8px;
@@ -340,10 +298,8 @@ section {
   user-select: none;
 }
 .ropt.sel { border-color: var(--green); color: var(--white); background: rgba(61,92,53,0.25); }
-
 .companion-extra { display: none; }
 .companion-extra.on { display: block; }
-
 .btn-submit {
   width: 100%;
   margin-top: 28px;
@@ -360,8 +316,6 @@ section {
   transition: background 0.3s, transform 0.2s;
 }
 .btn-submit:hover { background: var(--green-light); transform: translateY(-1px); }
-
-/* ─── SUCCESS ─── */
 #success-wrap {
   display: none;
   text-align: center;
@@ -389,7 +343,7 @@ section {
   position: fixed;
   bottom: 24px;
   right: 20px;
-  z-index: 100;
+  z-index: 200;
   width: 44px; height: 44px;
   border-radius: 50%;
   border: 1px solid rgba(255,255,255,0.18);
@@ -425,10 +379,10 @@ section {
   right: 16px;
   top: 50%;
   transform: translateY(-50%);
-  z-index: 100;
+  z-index: 200;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 8px;
 }
 .pdot {
   width: 5px; height: 5px;
@@ -440,42 +394,12 @@ section {
 .pdot.active { background: var(--green-light); transform: scale(1.6); }
 
 /* ─── CORNER DECO ─── */
-.corner { position: fixed; z-index: 50; pointer-events: none; width: 50px; height: 50px; }
+.corner { position: fixed; z-index: 150; pointer-events: none; width: 50px; height: 50px; }
 .corner svg { width: 100%; height: 100%; }
 .c-tl { top: 14px; left: 14px; }
 .c-tr { top: 14px; right: 14px; transform: scaleX(-1); }
 .c-bl { bottom: 14px; left: 14px; transform: scaleY(-1); }
 .c-br { bottom: 14px; right: 14px; transform: scale(-1); }
-
-/* ─── KEN BURNS HERO SLIDESHOW ─── */
-#s-hero { position: relative; }
-.kb-container {
-  position: absolute;
-  inset: 0;
-  overflow: hidden;
-}
-.kb-slide {
-  position: absolute;
-  inset: 0;
-  background-size: cover;
-  background-position: center;
-  opacity: 0;
-  transition: opacity 1.4s ease-in-out;
-}
-.kb-slide.kb-active {
-  opacity: 1;
-  animation: kenburns 7s ease-out forwards;
-}
-.kb-overlay {
-  position: absolute;
-  inset: 0;
-  background: rgba(0,0,0,0.50);
-  z-index: 1;
-}
-@keyframes kenburns {
-  from { transform: scale(1.00) translate(0%, 0%);   }
-  to   { transform: scale(1.10) translate(-1%, 0.5%); }
-}
 </style>
 </head>
 <body>
@@ -489,9 +413,12 @@ section {
 <!-- PROGRESS DOTS -->
 <div id="progress-dots">
   <div class="pdot active" data-target="s-hero"></div>
-  <div class="pdot" data-target="s-invitacion"></div>
-  <div class="pdot" data-target="s-dresscode"></div>
+  <div class="pdot" data-target="s-intro"></div>
+  <div class="pdot" data-target="s-foto2"></div>
+  <div class="pdot" data-target="s-fecha"></div>
+  <div class="pdot" data-target="s-foto3"></div>
   <div class="pdot" data-target="s-frase"></div>
+  <div class="pdot" data-target="s-foto4"></div>
   <div class="pdot" data-target="s-form"></div>
 </div>
 
@@ -505,15 +432,12 @@ section {
   <source src="tu-cancion.mp3" type="audio/mpeg">
 </audio>
 
-<!-- ── S1: HERO ── -->
-<section id="s-hero">
-  <div class="kb-container">
-    <div class="kb-slide kb-active" style="background-image:url('/photos/hero-dip.jpg')"></div>
-    <div class="kb-slide" style="background-image:url('/photos/slideshow-beso-plaza.jpg')"></div>
-    <div class="kb-slide" style="background-image:url('/photos/slideshow-caminando.jpg')"></div>
-    <div class="kb-slide" style="background-image:url('/photos/slideshow-beso-arco.jpg')"></div>
-    <div class="kb-overlay"></div>
-  </div>
+<div id="card-stack">
+
+<!-- ── CARTA 1: FOTO HERO ── -->
+<section class="card card-photo" id="s-hero"
+         style="background-image:url('/photos/hero-dip.jpg')">
+  <div class="photo-overlay-hero"></div>
   <div class="section-content">
     <p class="tag reveal d1">Save the Date</p>
     <h1 class="names reveal d2">
@@ -526,63 +450,64 @@ section {
       <span class="divider-sym">✦</span>
       <div class="divider-line"></div>
     </div>
-    <p class="intro-text reveal d4">
-      Hay momentos que se escriben para siempre.<br>
-      Este es uno de ellos.<br>
-      Guarda esta fecha — te necesitamos ahí.
-    </p>
-    <div class="scroll-hint reveal d5">
+    <div class="scroll-hint reveal d4">
       <span>Desliza</span>
       <div class="scroll-arrow"></div>
     </div>
   </div>
 </section>
 
-<!-- ── S2: INVITACIÓN ── -->
-<section id="s-invitacion">
-  <div class="bg-photo"></div>
+<!-- ── CARTA 2: TEXTO INTRO ── -->
+<section class="card card-text" id="s-intro">
   <div class="section-content">
-    <p class="section-label reveal d1">La invitación</p>
-    <div class="big-date reveal d2">
-      <em>Viernes</em>
-      12 · 02 · 2027
+    <div class="divider reveal d1">
+      <div class="divider-line"></div>
+      <span class="divider-sym">✦</span>
+      <div class="divider-line"></div>
     </div>
+    <p class="intro-text reveal d2">
+      Hay momentos que se escriben para siempre.<br>
+      Este es uno de ellos.<br>
+      Guarda esta fecha — te necesitamos ahí.
+    </p>
     <div class="divider reveal d3">
       <div class="divider-line"></div>
       <span class="divider-sym">✦</span>
       <div class="divider-line"></div>
     </div>
-    <div class="time-venue reveal d4">
-      <div>A partir de las</div>
-      <div style="font-size: 15.5px; letter-spacing:6px; color:var(--white);">6 : 00 PM</div>
-    </div>
-    <div class="venue-name reveal d5">Monumento Las Capuchinas</div>
-    <p class="time-venue reveal d5" style="margin-top:4px; font-size: 10.5px;">Guatemala</p>
   </div>
 </section>
 
-<!-- ── S3: DRESSCODE ── -->
-<section id="s-dresscode">
-  <div class="bg-photo"></div>
+<!-- ── CARTA 3: FOTO IGLESIA ── -->
+<section class="card card-photo" id="s-foto2"
+         style="background-image:url('/photos/invitacion-iglesia.jpg')">
+  <div class="photo-vignette"></div>
+</section>
+
+<!-- ── CARTA 4: TEXTO FECHA ── -->
+<section class="card card-text" id="s-fecha">
   <div class="section-content">
-    <p class="section-label reveal d1">Código de vestimenta</p>
-    <div class="dresscode-box reveal d2">
-      <div class="dresscode-title">Dresscode</div>
-      <div class="dresscode-rule">Blanco &amp; Negro · Obligatorio</div>
-      <div class="bw-swatches">
-        <div class="swatch negro"></div>
-        <div class="swatch blanco"></div>
-      </div>
-      <p class="dresscode-note">
-        Celebremos juntos con elegancia.<br>
-        Solo blanco, negro o la combinación de ambos.
-      </p>
+    <div class="big-date reveal d1">
+      <em>Viernes</em>
+      12 · 02 · 2027
     </div>
+    <div class="divider reveal d2">
+      <div class="divider-line"></div>
+      <span class="divider-sym">✦</span>
+      <div class="divider-line"></div>
+    </div>
+    <div class="venue-name reveal d3">Antigua Guatemala</div>
   </div>
 </section>
 
-<!-- ── S4: FRASE CONMEMORATIVA ── -->
-<section id="s-frase">
+<!-- ── CARTA 5: FOTO ESCALONES ── -->
+<section class="card card-photo" id="s-foto3"
+         style="background-image:url('/photos/dresscode-escalones.jpg')">
+  <div class="photo-vignette"></div>
+</section>
+
+<!-- ── CARTA 6: TEXTO FRASE ── -->
+<section class="card card-text" id="s-frase">
   <div class="section-content">
     <div class="divider reveal d1" style="margin-bottom:32px;">
       <div class="divider-line"></div>
@@ -601,6 +526,11 @@ section {
   </div>
 </section>
 
+<!-- ── CARTA 7: FOTO BESO PLAZA ── -->
+<section class="card card-photo" id="s-foto4"
+         style="background-image:url('/photos/slideshow-beso-plaza.jpg')">
+  <div class="photo-vignette"></div>
+</section>
 
 <style>
 /* ─── RSVP EXTRA ─── */
@@ -649,7 +579,8 @@ section {
 #form-already h3 { margin-bottom: 12px; }
 #form-already p  { color: var(--green-pale); font-size: 15.5px; line-height: 1.7; }
 </style>
-<!-- ── S5: FORMULARIO ── -->
+
+
 <section id="s-form">
   <div class="section-content">
 
@@ -720,7 +651,10 @@ section {
 
   </div>
 </section>
-<!-- Firebase SDK -->
+
+
+</div><!-- /#card-stack -->
+
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 <script>
@@ -734,7 +668,7 @@ const io = new IntersectionObserver((entries) => {
 reveals.forEach(r => io.observe(r));
 
 /* ─── PROGRESS DOTS ─── */
-const sections = ['s-hero','s-invitacion','s-dresscode','s-frase','s-form'];
+const sections = ['s-hero','s-intro','s-foto2','s-fecha','s-foto3','s-frase','s-foto4','s-form'];
 const pdots = document.querySelectorAll('.pdot');
 
 pdots.forEach((dot, i) => {
@@ -743,7 +677,7 @@ pdots.forEach((dot, i) => {
   });
 });
 
-const sectionEls = sections.map(id => document.getElementById(id));
+const sectionEls = sections.map(id => document.getElementById(id)).filter(Boolean);
 const sio = new IntersectionObserver((entries) => {
   entries.forEach(e => {
     if (e.isIntersecting) {
@@ -755,37 +689,23 @@ const sio = new IntersectionObserver((entries) => {
 }, { threshold: 0.5 });
 sectionEls.forEach(s => sio.observe(s));
 
-/* ─── PARALLAX SUAVE ─── */
-const bgs = document.querySelectorAll('.bg-photo');
+/* ─── CARD STACK SCALE ─── */
+const cards = Array.from(document.querySelectorAll('#card-stack .card'));
 window.addEventListener('scroll', () => {
   const scrollY = window.scrollY;
-  bgs.forEach((bg, i) => {
-    const section = bg.parentElement;
-    const rect = section.getBoundingClientRect();
-    const offset = rect.top * 0.06;
-    bg.style.transform = `scale(1.1) translateY(${offset}px)`;
+  const vh = window.innerHeight;
+  cards.forEach(card => {
+    const top = card.offsetTop;
+    const progress = Math.min(1, Math.max(0, (scrollY - top) / vh));
+    if (progress > 0) {
+      card.style.transform = `scale(${1 - progress * 0.05})`;
+      card.style.borderRadius = `${progress * 16}px`;
+    } else {
+      card.style.transform = 'scale(1)';
+      card.style.borderRadius = '0';
+    }
   });
 }, { passive: true });
-
-/* ─── HERO KEN BURNS SLIDESHOW ─── */
-(function() {
-  const slides = document.querySelectorAll('.kb-slide');
-  if (!slides.length) return;
-  let cur = 0;
-
-  function advance() {
-    slides[cur].classList.remove('kb-active');
-    cur = (cur + 1) % slides.length;
-    const next = slides[cur];
-    // reset animation so kenburns restarts on each slide
-    next.style.animation = 'none';
-    void next.offsetWidth;
-    next.style.animation = '';
-    next.classList.add('kb-active');
-  }
-
-  setInterval(advance, 5500);
-})();
 
 
 /* ─── AUDIO ─── */
@@ -948,5 +868,6 @@ async function loadByCode() {
   guestData.confirmado ? renderAlreadyConfirmed() : renderForm();
 })();
 </script>
+
 </body>
 </html>
