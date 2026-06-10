@@ -334,8 +334,7 @@ tbody td {
     <div class="stats-grid">
       <div class="stat-card"><div class="num" id="st-total">—</div><div class="lbl">Total invitaciones</div></div>
       <div class="stat-card"><div class="num" id="st-confirmed">—</div><div class="lbl">Confirmados</div></div>
-      <div class="stat-card"><div class="num" id="st-attending">—</div><div class="lbl">Asistirán</div></div>
-      <div class="stat-card"><div class="num" id="st-companions">—</div><div class="lbl">Acompañantes</div></div>
+      <div class="stat-card"><div class="num" id="st-total-attending">—</div><div class="lbl">Total asistentes</div></div>
       <div class="stat-card"><div class="num" id="st-pending">—</div><div class="lbl">Pendientes</div></div>
       <div class="stat-card"><div class="num" id="st-no">—</div><div class="lbl">No asisten</div></div>
     </div>
@@ -525,13 +524,13 @@ function updateStats() {
   const attending  = allGuests.filter(g => g.asistira);
   const pending    = allGuests.filter(g => !g.confirmado);
   const no         = allGuests.filter(g => g.confirmado && !g.asistira);
-  const companions = attending.reduce((s, g) => s + (g.acompanantes ? g.acompanantes.length : 0), 0);
-  document.getElementById('st-total').textContent     = allGuests.length;
-  document.getElementById('st-confirmed').textContent = confirmed.length;
-  document.getElementById('st-attending').textContent = attending.length;
-  document.getElementById('st-companions').textContent= companions;
-  document.getElementById('st-pending').textContent   = pending.length;
-  document.getElementById('st-no').textContent        = no.length;
+  const companions     = attending.reduce((s, g) => s + (g.acompanantes ? g.acompanantes.length : 0), 0);
+  const totalAttending = attending.length + companions;
+  document.getElementById('st-total').textContent          = allGuests.length;
+  document.getElementById('st-confirmed').textContent      = confirmed.length;
+  document.getElementById('st-total-attending').textContent= totalAttending;
+  document.getElementById('st-pending').textContent        = pending.length;
+  document.getElementById('st-no').textContent             = no.length;
 }
 
 /* ─── FILTER ─── */

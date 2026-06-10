@@ -588,8 +588,34 @@ body {
   color: var(--gold);
   margin-bottom: 16px;
 }
-#form-already h3 { margin-bottom: 12px; }
-#form-already p  { color: var(--green-pale); font-size: 15.5px; line-height: 1.7; }
+#form-already h3 { margin-bottom: 12px; font-size: 22px; }
+#form-already p  { color: var(--green-pale); font-size: 19.5px; line-height: 1.7; }
+#success-wrap h3 { margin-bottom: 12px; font-size: 22px; }
+#success-wrap p  { color: var(--green-pale); font-size: 19.5px; line-height: 1.7; }
+
+.thanks-pyramid { margin-top: 24px; text-align: center; }
+.thanks-names {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 29.5px;
+  color: var(--gold);
+  letter-spacing: 2px;
+  margin-bottom: 6px;
+}
+.thanks-msg {
+  font-size: 19.5px;
+  font-weight: 300;
+  color: var(--white);
+  margin-bottom: 4px;
+  line-height: 1.5;
+}
+.thanks-date {
+  font-size: 14.5px;
+  letter-spacing: 5px;
+  text-transform: uppercase;
+  color: var(--green-pale);
+  font-weight: 200;
+}
 </style>
 
 
@@ -648,8 +674,11 @@ body {
       <div class="check">✦</div>
       <h3>¡Ya estás confirmado!</h3>
       <p id="already-msg"></p>
-      <br>
-      <p style="color:var(--green-light);margin-top:8px;">Gian &amp; Alissen te esperan · 12 · 02 · 2027</p>
+      <div class="thanks-pyramid">
+        <p class="thanks-names">Gian &amp; Alissen</p>
+        <p class="thanks-msg">te esperamos</p>
+        <p class="thanks-date">12 · 02 · 2027</p>
+      </div>
     </div>
 
     <!-- Estado: éxito tras enviar -->
@@ -657,8 +686,11 @@ body {
       <div class="check">✦</div>
       <h3>¡Gracias!</h3>
       <p>Tu confirmación fue recibida<br>con mucho cariño</p>
-      <br>
-      <p style="color:var(--green-light);margin-top:8px;">Gian &amp; Alissen te esperan · 12 · 02 · 2027</p>
+      <div class="thanks-pyramid">
+        <p class="thanks-names">Gian &amp; Alissen</p>
+        <p class="thanks-msg">te esperamos</p>
+        <p class="thanks-date">12 · 02 · 2027</p>
+      </div>
     </div>
 
   </div>
