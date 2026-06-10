@@ -128,7 +128,7 @@ body {
 
 /* ─── TIPOGRAFÍA ─── */
 .tag {
-  font-size: 14.5px;
+  font-size: 16.5px;
   font-weight: 200;
   letter-spacing: 6px;
   text-transform: uppercase;
@@ -233,13 +233,22 @@ body {
   color: var(--white);
   letter-spacing: 0.5px;
 }
-.frase-firma {
-  margin-top: 24px;
-  font-size: 10.5px;
-  letter-spacing: 6px;
+.frase-nombres {
+  margin-top: 28px;
+  font-family: 'Jost', sans-serif;
+  font-size: 13.5px;
+  font-weight: 600;
+  letter-spacing: 5px;
   text-transform: uppercase;
-  color: var(--green-light);
-  font-weight: 200;
+  color: var(--white);
+}
+.frase-fecha {
+  margin-top: 6px;
+  font-family: 'Jost', sans-serif;
+  font-size: 11.5px;
+  font-weight: 300;
+  letter-spacing: 4px;
+  color: var(--green-pale);
 }
 
 /* ─── FORMULARIO ─── */
@@ -519,20 +528,11 @@ body {
 <!-- ── CARTA 6: TEXTO FRASE ── -->
 <section class="card card-text" id="s-frase">
   <div class="section-content">
-    <div class="divider reveal d1" style="margin-bottom:32px;">
-      <div class="divider-line"></div>
-      <span class="divider-sym">✦</span>
-      <div class="divider-line"></div>
-    </div>
-    <p class="frase-grande reveal d2">
+    <p class="frase-grande reveal d1">
       Donde sea<br>pero juntos
     </p>
-    <p class="frase-firma reveal d3">Gian &amp; Alissen · 2027</p>
-    <div class="divider reveal d4" style="margin-top:32px;">
-      <div class="divider-line"></div>
-      <span class="divider-sym">✦</span>
-      <div class="divider-line"></div>
-    </div>
+    <p class="frase-nombres reveal d2">Gian y Alissen</p>
+    <p class="frase-fecha reveal d3">12 · 02 · 2027</p>
   </div>
 </section>
 
