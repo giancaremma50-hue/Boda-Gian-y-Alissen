@@ -360,6 +360,15 @@ body {
 }
 
 /* ─── AUDIO ─── */
+@keyframes ghost-float {
+  0%,100% { transform: translateY(0); }
+  50%     { transform: translateY(-6px); }
+}
+@keyframes ghost-pulse {
+  0%   { box-shadow: 0 0 0 0 rgba(200,169,110,0.40); }
+  70%  { box-shadow: 0 0 0 14px rgba(200,169,110,0); }
+  100% { box-shadow: 0 0 0 0 rgba(200,169,110,0); }
+}
 #audio-fab {
   position: fixed;
   bottom: 24px;
@@ -367,16 +376,17 @@ body {
   z-index: 200;
   width: 44px; height: 44px;
   border-radius: 50%;
-  border: 1px solid rgba(255,255,255,0.18);
-  background: rgba(10,10,10,0.65);
-  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255,255,255,0.14);
+  background: rgba(255,255,255,0.06);
+  backdrop-filter: blur(12px);
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
+  animation: ghost-float 3s ease-in-out infinite, ghost-pulse 2.4s ease-out infinite;
   transition: border-color 0.3s;
 }
-#audio-fab:hover { border-color: var(--green); }
+#audio-fab:hover { border-color: var(--gold); }
 .waves { display: flex; align-items: center; gap: 2.5px; height: 16px; }
 .waves span {
   display: block; width: 3px;
@@ -449,9 +459,7 @@ body {
     <span></span><span></span><span></span><span></span>
   </div>
 </div>
-<audio id="audio" loop>
-  <source src="tu-cancion.mp3" type="audio/mpeg">
-</audio>
+<div id="yt-player" style="position:absolute;width:1px;height:1px;opacity:0;pointer-events:none;"></div>
 
 <div id="card-stack">
 
@@ -763,29 +771,48 @@ window.addEventListener('scroll', () => {
 }, { passive: true });
 
 
-/* ─── AUDIO ─── */
-const audio = document.getElementById('audio');
+/* ─── AUDIO (YouTube IFrame API) ─── */
 const fab   = document.getElementById('audio-fab');
 const waves = document.getElementById('waves');
-let playing = false;
+let ytPlayer, unmuted = false;
 
-function startAudio() {
-  audio.play().then(() => {
-    waves.classList.remove('off');
-    playing = true;
-  }).catch(() => {});
-}
+(function() {
+  var tag = document.createElement('script');
+  tag.src = 'https://www.youtube.com/iframe_api';
+  document.head.appendChild(tag);
+})();
 
-fab.addEventListener('click', () => {
-  if (playing) {
-    audio.pause();
-    waves.classList.add('off');
-    playing = false;
-  } else { startAudio(); }
+window.onYouTubeIframeAPIReady = function() {
+  ytPlayer = new YT.Player('yt-player', {
+    videoId: '7HfabBDl_-o',
+    playerVars: { autoplay: 1, mute: 1, loop: 1, playlist: '7HfabBDl_-o', controls: 0, playsinline: 1 },
+    events: {
+      onReady: function(e) { e.target.playVideo(); waves.classList.remove('off'); },
+      onStateChange: function(e) {
+        waves.classList.toggle('off', e.data !== YT.PlayerState.PLAYING);
+      }
+    }
+  });
+};
+
+['touchstart','scroll','click'].forEach(evt => {
+  document.addEventListener(evt, function unmuteOnce() {
+    if (!unmuted && ytPlayer && ytPlayer.unMute) {
+      ytPlayer.unMute();
+      unmuted = true;
+    }
+    document.removeEventListener(evt, unmuteOnce);
+  });
 });
 
-['touchstart','click'].forEach(evt => {
-  document.addEventListener(evt, () => { if (!playing) startAudio(); }, { once: true });
+fab.addEventListener('click', () => {
+  if (!ytPlayer) return;
+  if (ytPlayer.getPlayerState() === YT.PlayerState.PLAYING) {
+    ytPlayer.pauseVideo();
+  } else {
+    ytPlayer.playVideo();
+    if (!unmuted) { ytPlayer.unMute(); unmuted = true; }
+  }
 });
 
 
