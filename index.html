@@ -404,6 +404,83 @@ body {
   50%     { transform: scaleY(0.25); }
 }
 
+/* ─── INTRO SCREEN ─── */
+#intro-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 500;
+  background-image: url('/photos/hero-dip.jpg');
+  background-size: cover;
+  background-position: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.85s ease, transform 0.85s ease;
+}
+#intro-screen::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.62);
+}
+#intro-screen.leaving {
+  opacity: 0;
+  transform: scale(1.05);
+  pointer-events: none;
+}
+#intro-content {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  opacity: 0;
+  animation: intro-enter 1s ease 0.3s forwards;
+}
+@keyframes intro-enter {
+  from { opacity: 0; transform: translateY(18px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.intro-eyebrow {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: clamp(22px, 6vw, 34px);
+  font-weight: 300;
+  color: var(--white);
+  letter-spacing: 3px;
+  text-align: center;
+}
+#intro-play-btn {
+  width: 82px; height: 82px;
+  border-radius: 50%;
+  border: 1.5px solid var(--gold);
+  background: rgba(255,255,255,0.06);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 0.6s cubic-bezier(0.4,0,0.2,1), opacity 0.5s ease, border-color 0.3s;
+  animation: intro-pulse 2.2s ease-in-out infinite;
+  -webkit-tap-highlight-color: transparent;
+  outline: none;
+}
+#intro-play-btn:hover { border-color: #fff; }
+#intro-play-btn svg { margin-left: 5px; }
+@keyframes intro-pulse {
+  0%,100% { box-shadow: 0 0 0 0 rgba(200,169,110,0.45); }
+  60%     { box-shadow: 0 0 0 22px rgba(200,169,110,0); }
+}
+.intro-label {
+  font-family: 'Jost', sans-serif;
+  font-size: 11px;
+  font-weight: 200;
+  letter-spacing: 7px;
+  text-transform: uppercase;
+  color: var(--green-pale);
+}
+
 /* ─── PROGRESS DOTS ─── */
 #progress-dots {
   position: fixed;
@@ -440,6 +517,19 @@ body {
 <div class="corner c-tr"><svg viewBox="0 0 50 50" fill="none"><path d="M2 48 L2 2 L48 2" stroke="#3d5c35" stroke-width="1.2"/><circle cx="2" cy="2" r="2" fill="#6b8f61"/></svg></div>
 <div class="corner c-bl"><svg viewBox="0 0 50 50" fill="none"><path d="M2 48 L2 2 L48 2" stroke="#3d5c35" stroke-width="1.2"/><circle cx="2" cy="2" r="2" fill="#6b8f61"/></svg></div>
 <div class="corner c-br"><svg viewBox="0 0 50 50" fill="none"><path d="M2 48 L2 2 L48 2" stroke="#3d5c35" stroke-width="1.2"/><circle cx="2" cy="2" r="2" fill="#6b8f61"/></svg></div>
+
+<!-- INTRO SCREEN -->
+<div id="intro-screen">
+  <div id="intro-content">
+    <p class="intro-eyebrow">Gian &amp; Alissen</p>
+    <button id="intro-play-btn" onclick="launchExperience()" aria-label="Iniciar">
+      <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+        <polygon points="8,4 24,14 8,24" fill="#c8a96e"/>
+      </svg>
+    </button>
+    <p class="intro-label">Iniciemos</p>
+  </div>
+</div>
 
 <!-- PROGRESS DOTS -->
 <div id="progress-dots">
@@ -771,6 +861,40 @@ window.addEventListener('scroll', () => {
 }, { passive: true });
 
 
+/* ─── INTRO LAUNCH ─── */
+function launchExperience() {
+  const introScreen = document.getElementById('intro-screen');
+  const introBtn    = document.getElementById('intro-play-btn');
+  const fab         = document.getElementById('audio-fab');
+
+  // Calcular posición destino (centro del FAB)
+  const bR = introBtn.getBoundingClientRect();
+  const fR = fab.getBoundingClientRect();
+  const dx = (fR.left + fR.width / 2) - (bR.left + bR.width / 2);
+  const dy = (fR.top  + fR.height / 2) - (bR.top  + bR.height / 2);
+  const scale = fR.width / bR.width;
+
+  // Animar botón → esquina
+  introBtn.style.transition = 'transform 0.65s cubic-bezier(0.4,0,0.2,1), opacity 0.45s ease';
+  introBtn.style.transform  = `translate(${dx}px, ${dy}px) scale(${scale})`;
+  introBtn.style.opacity    = '0';
+
+  // Fade-out + scale-up de la pantalla
+  introScreen.classList.add('leaving');
+  setTimeout(() => { introScreen.style.display = 'none'; }, 900);
+
+  // Arrancar música sin mute (el usuario eligió explícitamente)
+  if (ytPlayer && typeof ytPlayer.unMute === 'function') {
+    ytPlayer.unMute();
+    ytPlayer.playVideo();
+    unmuted = true;
+    waves.classList.remove('off');
+  } else {
+    // Player no listo aún — marcar para que lo haga en onReady
+    unmuted = true;
+  }
+}
+
 /* ─── AUDIO (YouTube IFrame API) ─── */
 const fab   = document.getElementById('audio-fab');
 const waves = document.getElementById('waves');
@@ -787,7 +911,10 @@ window.onYouTubeIframeAPIReady = function() {
     videoId: '7HfabBDl_-o',
     playerVars: { autoplay: 1, mute: 1, loop: 1, playlist: '7HfabBDl_-o', controls: 0, playsinline: 1 },
     events: {
-      onReady: function(e) { e.target.playVideo(); waves.classList.remove('off'); },
+      onReady: function(e) {
+        e.target.playVideo();
+        if (unmuted) { e.target.unMute(); waves.classList.remove('off'); }
+      },
       onStateChange: function(e) {
         waves.classList.toggle('off', e.data !== YT.PlayerState.PLAYING);
       }
