@@ -549,7 +549,7 @@ body {
     <span></span><span></span><span></span><span></span>
   </div>
 </div>
-<div id="yt-player" style="position:absolute;width:1px;height:1px;opacity:0;pointer-events:none;"></div>
+<audio id="audio" loop><source src="/audio/cancion.mp3" type="audio/mpeg"></audio>
 
 <div id="card-stack">
 
@@ -790,6 +790,19 @@ body {
       </div>
     </div>
 
+    <!-- Estado: declina asistencia -->
+    <div id="decline-wrap" style="display:none;">
+      <div class="check">✦</div>
+      <h3>Gracias por informarnos.</h3>
+      <p>Aunque extrañaremos tu presencia en nuestra celebración, comprendemos que pueden surgir compromisos que impidan acompañarnos.</p>
+      <p style="margin-top:10px;">Te enviamos un fuerte abrazo.</p>
+      <div class="thanks-pyramid">
+        <p class="thanks-names">Con cariño,</p>
+        <p class="thanks-msg">Gian &amp; Alissen 🤍</p>
+        <p class="thanks-date">12 · 02 · 2027</p>
+      </div>
+    </div>
+
     <!-- Estado: éxito tras enviar -->
     <div id="success-wrap" style="display:none;">
       <div class="check">✦</div>
@@ -883,62 +896,24 @@ function launchExperience() {
   introScreen.classList.add('leaving');
   setTimeout(() => { introScreen.style.display = 'none'; }, 900);
 
-  // Arrancar música sin mute (el usuario eligió explícitamente)
-  if (ytPlayer && typeof ytPlayer.unMute === 'function') {
-    ytPlayer.unMute();
-    ytPlayer.playVideo();
-    unmuted = true;
-    waves.classList.remove('off');
-  } else {
-    // Player no listo aún — marcar para que lo haga en onReady
-    unmuted = true;
-  }
+  // Arrancar música (clic explícito — funciona en iOS sin restricciones)
+  const aud = document.getElementById('audio');
+  aud.play().then(() => { waves.classList.remove('off'); playing = true; }).catch(() => {});
 }
 
-/* ─── AUDIO (YouTube IFrame API) ─── */
+/* ─── AUDIO ─── */
 const fab   = document.getElementById('audio-fab');
 const waves = document.getElementById('waves');
-let ytPlayer, unmuted = false;
-
-(function() {
-  var tag = document.createElement('script');
-  tag.src = 'https://www.youtube.com/iframe_api';
-  document.head.appendChild(tag);
-})();
-
-window.onYouTubeIframeAPIReady = function() {
-  ytPlayer = new YT.Player('yt-player', {
-    videoId: '7HfabBDl_-o',
-    playerVars: { autoplay: 1, mute: 1, loop: 1, playlist: '7HfabBDl_-o', controls: 0, playsinline: 1 },
-    events: {
-      onReady: function(e) {
-        e.target.playVideo();
-        if (unmuted) { e.target.unMute(); waves.classList.remove('off'); }
-      },
-      onStateChange: function(e) {
-        waves.classList.toggle('off', e.data !== YT.PlayerState.PLAYING);
-      }
-    }
-  });
-};
-
-['touchstart','scroll','click'].forEach(evt => {
-  document.addEventListener(evt, function unmuteOnce() {
-    if (!unmuted && ytPlayer && ytPlayer.unMute) {
-      ytPlayer.unMute();
-      unmuted = true;
-    }
-    document.removeEventListener(evt, unmuteOnce);
-  });
-});
+const audio = document.getElementById('audio');
+let playing = false;
 
 fab.addEventListener('click', () => {
-  if (!ytPlayer) return;
-  if (ytPlayer.getPlayerState() === YT.PlayerState.PLAYING) {
-    ytPlayer.pauseVideo();
+  if (playing) {
+    audio.pause();
+    waves.classList.add('off');
+    playing = false;
   } else {
-    ytPlayer.playVideo();
-    if (!unmuted) { ytPlayer.unMute(); unmuted = true; }
+    audio.play().then(() => { waves.classList.remove('off'); playing = true; }).catch(() => {});
   }
 });
 
@@ -960,7 +935,7 @@ let guestId   = null;
 let attendVal = '';
 
 function showState(id) {
-  ['form-loading','form-no-token','form-wrap','form-already','success-wrap'].forEach(d => {
+  ['form-loading','form-no-token','form-wrap','form-already','success-wrap','decline-wrap'].forEach(d => {
     const el = document.getElementById(d);
     if (el) el.style.display = (d === id) ? 'block' : 'none';
   });
@@ -1045,7 +1020,7 @@ async function submitForm() {
       acompanantes: acompanantes,
       confirmadoEn: firebase.firestore.FieldValue.serverTimestamp()
     });
-    showState('success-wrap');
+    showState(attendVal === 'si' ? 'success-wrap' : 'decline-wrap');
   } catch(e) {
     btn.disabled = false;
     btn.textContent = 'Enviar confirmación';
