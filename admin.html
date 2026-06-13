@@ -604,13 +604,16 @@ function copyLink(id) {
   const msg =
 `¡Hola ${nombre}! 🤍
 
-Queremos que seas de los primeros en saber que nos casamos y reservar esta fecha especial en tu corazón.
+Nos casamos y queremos que estés ahí. 🥂
 
-Accede a tu Save the Date personal aquí:
+Guarda esta fecha en tu corazón:
+📅 Viernes 12 · 02 · 2027 · Antigua Guatemala
+
+Este es tu Save the Date personal:
 👉 ${link}
 
-Con mucho cariño,
-Gian & Alissen ✨`;
+Con todo nuestro amor,
+Gian & Alissen 🤍✨`;
 
   navigator.clipboard.writeText(msg).then(() => toast('Mensaje copiado ✓'));
 }
