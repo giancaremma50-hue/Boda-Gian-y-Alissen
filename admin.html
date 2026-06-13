@@ -597,8 +597,22 @@ function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').re
 
 /* ─── COPY LINK ─── */
 function copyLink(id) {
-  const link = SITE_URL + '/index.html?inv=' + id;
-  navigator.clipboard.writeText(link).then(() => toast('Link copiado ✓'));
+  const g      = allGuests.find(x => x.id === id);
+  const link   = SITE_URL + '/index.html?inv=' + id;
+  const nombre = g ? g.nombre : 'Invitado';
+
+  const msg =
+`¡Hola ${nombre}! 🤍
+
+Estamos muy emocionados de poder compartir este momento tan especial con ustedes.
+
+Te compartimos tu invitación personal para nuestra boda:
+👉 ${link}
+
+Con mucho cariño,
+Gian & Alissen ✨`;
+
+  navigator.clipboard.writeText(msg).then(() => toast('Mensaje copiado ✓'));
 }
 
 /* ─── INLINE EDIT ─── */
