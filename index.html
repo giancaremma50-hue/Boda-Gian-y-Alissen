@@ -83,7 +83,7 @@ body {
   position: absolute;
   inset: 0;
   background: rgba(0,0,0,0.48);
-  z-index: 1;
+  z-index: 2;
 }
 
 /* Fotos limpias: solo vignette sutil en bordes */
@@ -91,8 +91,21 @@ body {
   position: absolute;
   inset: 0;
   background: radial-gradient(ellipse at center, transparent 55%, rgba(0,0,0,0.14) 100%);
-  z-index: 1;
+  z-index: 2;
 }
+
+/* Capas blur/contain para landscape desktop — se activan con media query */
+.photo-bg-blur,
+.photo-bg-sharp {
+  position: absolute;
+  inset: 0;
+  display: none;
+  background-image: var(--photo-url);
+  background-repeat: no-repeat;
+  background-position: center center;
+}
+.photo-bg-blur  { z-index: 0; }
+.photo-bg-sharp { z-index: 1; }
 
 /* Hero single Ken Burns */
 @keyframes kenburns-single {
@@ -106,7 +119,7 @@ body {
 /* ─── SECTION CONTENT ─── */
 .section-content {
   position: relative;
-  z-index: 2;
+  z-index: 3;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -516,6 +529,33 @@ body {
 .c-tr { top: 14px; right: 14px; transform: scaleX(-1); }
 .c-bl { bottom: 14px; left: 14px; transform: scaleY(-1); }
 .c-br { bottom: 14px; right: 14px; transform: scale(-1); }
+
+/* ─── LANDSCAPE DESKTOP: foto completa con fondo difuminado ─── */
+@keyframes kenburns-landscape {
+  from { transform: scale(1); }
+  to   { transform: scale(1.05); }
+}
+@media (orientation: landscape) and (min-width: 768px) {
+  .card-photo {
+    background: none !important;
+  }
+  .photo-bg-blur {
+    display: block;
+    background-size: cover;
+    filter: blur(30px) brightness(0.45) saturate(0.75);
+    transform: scale(1.15);
+    transform-origin: center;
+  }
+  .photo-bg-sharp {
+    display: block;
+    background-size: contain;
+  }
+  /* Ken Burns en landscape: usar transform en vez de background-size */
+  #s-hero { animation: none; }
+  #s-hero .photo-bg-sharp {
+    animation: kenburns-landscape 14s ease-out forwards;
+  }
+}
 </style>
 </head>
 <body>
@@ -563,7 +603,9 @@ body {
 
 <!-- ── CARTA 1: FOTO HERO ── -->
 <section class="card card-photo" id="s-hero"
-         style="background-image:url('/photos/hero-dip.jpg')">
+         style="--photo-url:url('/photos/hero-dip.jpg');background-image:var(--photo-url)">
+  <div class="photo-bg-blur"></div>
+  <div class="photo-bg-sharp"></div>
   <div class="photo-overlay-hero"></div>
   <div class="section-content">
     <p class="tag reveal d1">Save the Date</p>
@@ -609,7 +651,9 @@ body {
 
 <!-- ── CARTA 3: FOTO IGLESIA ── -->
 <section class="card card-photo" id="s-foto2"
-         style="background-image:url('/photos/invitacion-iglesia.jpg')">
+         style="--photo-url:url('/photos/invitacion-iglesia.jpg');background-image:var(--photo-url)">
+  <div class="photo-bg-blur"></div>
+  <div class="photo-bg-sharp"></div>
   <div class="photo-vignette"></div>
 </section>
 
@@ -631,7 +675,9 @@ body {
 
 <!-- ── CARTA 5: FOTO ESCALONES ── -->
 <section class="card card-photo" id="s-foto3"
-         style="background-image:url('/photos/dresscode-escalones.jpg')">
+         style="--photo-url:url('/photos/dresscode-escalones.jpg');background-image:var(--photo-url)">
+  <div class="photo-bg-blur"></div>
+  <div class="photo-bg-sharp"></div>
   <div class="photo-vignette"></div>
 </section>
 
@@ -648,7 +694,9 @@ body {
 
 <!-- ── CARTA 7: FOTO BESO PLAZA ── -->
 <section class="card card-photo" id="s-foto4"
-         style="background-image:url('/photos/slideshow-beso-plaza.jpg')">
+         style="--photo-url:url('/photos/slideshow-beso-plaza.jpg');background-image:var(--photo-url)">
+  <div class="photo-bg-blur"></div>
+  <div class="photo-bg-sharp"></div>
   <div class="photo-vignette"></div>
 </section>
 
