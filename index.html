@@ -32,7 +32,8 @@ body {
 .card {
   position: sticky;
   top: 0;
-  height: 100svh;
+  height: 100vh;        /* fallback navegadores antiguos */
+  height: 100lvh;       /* siempre llena la pantalla — evita la franja al ocultarse la barra */
   width: 100%;
   overflow: hidden;
   display: flex;
@@ -58,7 +59,7 @@ body {
 }
 /* Punto focal por foto para que la pareja sea siempre visible en cualquier pantalla */
 #s-hero   { background-position: center 62%; }
-#s-foto2  { background-position: center 30%; }
+#s-foto2  { background-position: center 50%; }
 #s-foto3  { background-position: center 80%; }
 #s-foto4  { background-position: center 42%; }
 #intro-screen { background-position: center 62%; }
@@ -262,7 +263,8 @@ body {
 /* ─── FORMULARIO ─── */
 #s-form {
   background: linear-gradient(180deg, #0a0a0a 0%, #0e1a0e 100%);
-  min-height: 100svh;
+  min-height: 100vh;
+  min-height: 100lvh;
   position: relative;
   z-index: 9;
 }
@@ -417,7 +419,7 @@ body {
   z-index: 500;
   background-image: url('/photos/hero-dip.jpg');
   background-size: cover;
-  background-position: center;
+  background-position: center 62%;
   display: flex;
   align-items: center;
   justify-content: center;
