@@ -114,6 +114,10 @@ body {
 }
 #s-hero {
   animation: kenburns-single 14s ease-out forwards;
+  justify-content: flex-start;
+}
+#s-hero .section-content {
+  padding-top: clamp(52px, 11vh, 88px);
 }
 
 /* ─── SECTION CONTENT ─── */
@@ -542,7 +546,7 @@ body {
   .photo-bg-blur {
     display: block;
     background-size: cover;
-    filter: blur(30px) brightness(0.45) saturate(0.75);
+    filter: blur(20px) brightness(0.58) saturate(0.85);
     transform: scale(1.15);
     transform-origin: center;
   }
@@ -782,6 +786,52 @@ body {
   color: var(--green-pale);
   font-weight: 200;
 }
+
+/* ─── CALENDARIO ─── */
+.cal-section {
+  margin-top: 28px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(255,255,255,0.1);
+  text-align: center;
+}
+.cal-label {
+  font-size: 9px;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  color: var(--green-pale);
+  font-weight: 300;
+  margin-bottom: 14px;
+}
+.cal-btns {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+.cal-btn {
+  flex: 1;
+  min-width: 130px;
+  max-width: 180px;
+  padding: 11px 14px;
+  border: 1px solid rgba(255,255,255,0.14);
+  background: rgba(255,255,255,0.04);
+  color: var(--white);
+  font-family: 'Jost', sans-serif;
+  font-size: 9px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  transition: background 0.3s, border-color 0.3s;
+  -webkit-tap-highlight-color: transparent;
+}
+.cal-btn:hover {
+  background: rgba(255,255,255,0.09);
+  border-color: var(--green-light);
+}
 </style>
 
 
@@ -846,6 +896,19 @@ body {
         <p class="thanks-msg">Gian &amp; Alissen 🤍✨</p>
         <p class="thanks-date">12 · 02 · 2027</p>
       </div>
+      <div class="cal-section" id="already-cal" style="display:none;">
+        <p class="cal-label">Guarda la fecha en tu calendario</p>
+        <div class="cal-btns">
+          <button class="cal-btn" onclick="downloadICS()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+            Descargar .ics
+          </button>
+          <button class="cal-btn" onclick="openGoogleCal()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
+            Google Calendar
+          </button>
+        </div>
+      </div>
     </div>
 
     <!-- Estado: declina asistencia -->
@@ -870,6 +933,19 @@ body {
         <p class="thanks-names">Con cariño,</p>
         <p class="thanks-msg">Gian &amp; Alissen 🤍✨</p>
         <p class="thanks-date">12 · 02 · 2027</p>
+      </div>
+      <div class="cal-section">
+        <p class="cal-label">Guarda la fecha en tu calendario</p>
+        <div class="cal-btns">
+          <button class="cal-btn" onclick="downloadICS()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+            Descargar .ics
+          </button>
+          <button class="cal-btn" onclick="openGoogleCal()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
+            Google Calendar
+          </button>
+        </div>
       </div>
     </div>
 
@@ -1039,6 +1115,8 @@ function renderAlreadyConfirmed() {
     msg += '<br><span style="font-size: 13.5px;color:var(--green-pale);">Acompañantes: ' + guestData.acompanantes.join(', ') + '</span>';
   }
   document.getElementById('already-msg').innerHTML = msg;
+  const alreadyCal = document.getElementById('already-cal');
+  if (alreadyCal) alreadyCal.style.display = guestData.asistira ? '' : 'none';
   showState('form-already');
 }
 
@@ -1096,6 +1174,39 @@ async function loadByCode() {
   const found = await fetchGuest(code);
   if (!found) { errEl.style.display = ''; return; }
   guestData.confirmado ? renderAlreadyConfirmed() : renderForm();
+}
+
+/* ─── CALENDARIO ─── */
+function downloadICS() {
+  const ics = [
+    'BEGIN:VCALENDAR',
+    'VERSION:2.0',
+    'PRODID:-//Boda Gian & Alissen//ES',
+    'BEGIN:VEVENT',
+    'UID:boda-gian-alissen-20270212@boda-gian-y-alissen',
+    'DTSTART:20270212T180000',
+    'DTEND:20270212T230000',
+    'SUMMARY:Boda de Gian & Alissen ✨',
+    'LOCATION:Antigua Guatemala',
+    'DESCRIPTION:¡Nos casamos! Reserva esta fecha especial.',
+    'END:VEVENT',
+    'END:VCALENDAR'
+  ].join('\r\n');
+  const blob = new Blob([ics], { type: 'text/calendar;charset=utf-8' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href = url; a.download = 'boda-gian-alissen.ics';
+  document.body.appendChild(a); a.click();
+  document.body.removeChild(a); URL.revokeObjectURL(url);
+}
+
+function openGoogleCal() {
+  const url = 'https://calendar.google.com/calendar/render?action=TEMPLATE'
+    + '&text=Boda+de+Gian+%26+Alissen+%E2%9C%A8'
+    + '&dates=20270212T180000%2F20270212T230000'
+    + '&details=%C2%A1Nos+casamos%21+Reserva+esta+fecha+especial.'
+    + '&location=Antigua+Guatemala';
+  window.open(url, '_blank', 'noopener');
 }
 
 (async function init() {
