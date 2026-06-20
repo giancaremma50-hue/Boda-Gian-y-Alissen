@@ -489,6 +489,7 @@ function startApp() {
   try {
     firebase.initializeApp(FIREBASE_CONFIG);
     db = firebase.firestore();
+    db.enablePersistence({ synchronizeTabs: true }).catch(() => {});
     loadGuests();
   } catch(e) {
     console.error('Firebase init error:', e);
@@ -508,6 +509,8 @@ function loadGuests() {
     clearTimeout(hangTimeout);
     allGuests = snap.docs.map(d => ({ id: d.id, ...d.data() }));
     allGuests.sort((a, b) => a.nombre.localeCompare(b.nombre));
+    const initBtn = document.getElementById('init-btn');
+    if (initBtn) initBtn.style.display = allGuests.length > 0 ? 'none' : '';
     updateStats();
     renderTable();
   }, err => {
@@ -646,7 +649,11 @@ async function saveEdit(id) {
   const maxAcompanantes = parseInt(document.getElementById('edit-max-' + id).value);
   if (!nombre) { toast('El nombre no puede estar vacío'); return; }
   try {
-    await db.collection('guests').doc(id).update({ nombre, maxAcompanantes });
+    await db.collection('guests').doc(id).update({
+      nombre,
+      maxAcompanantes,
+      ultimaEdicion: firebase.firestore.FieldValue.serverTimestamp()
+    });
     toast('Cambios guardados ✓');
   } catch(e) { toast('Error al guardar'); }
 }

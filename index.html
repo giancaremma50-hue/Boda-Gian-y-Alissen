@@ -1043,6 +1043,7 @@ const FIREBASE_CONFIG = {
 };
 firebase.initializeApp(FIREBASE_CONFIG);
 const db = firebase.firestore();
+db.enablePersistence().catch(() => {});
 
 let guestData = null;
 let guestId   = null;
