@@ -68,7 +68,7 @@ body{
 #intro-blur-bg .blur-layer{
   position:absolute; inset:0; background-size:cover; background-position:center;
   filter:blur(50px) saturate(1.1) brightness(0.8); transform:scale(1.18);
-  transition:opacity .9s ease;
+  transition:opacity .55s cubic-bezier(.22,1,.36,1);
 }
 #blur-letter-bg{ z-index:2; background-image:url('/video/carta-apertura-blur.jpg'); }
 #blur-hero-bg{ z-index:1; opacity:0; background-image:url('/video/hero-loop-blur.jpg'); }
@@ -77,16 +77,25 @@ body{
   display:flex; align-items:flex-end;
   background-image:url('/photos/hero-dip.jpg'); background-size:cover; background-position:center 62%;
 }
+/* "Diving into the letter": the closing video pushes forward and
+   loses focus (as if the camera passed through the paper), the
+   incoming video arrives already close and pulls back into focus —
+   scale + blur read as depth without any 3D transform. */
 #letter-video, #hero-video{
   position:absolute; inset:0; width:100%; height:100%; object-fit:cover; display:block;
-  transition:opacity .9s ease, transform .9s ease;
 }
-#letter-video{ z-index:2; background:var(--putty); }
-#hero-video{ z-index:1; opacity:0; transform:scale(1.05); }
-#intro-scene.opened #letter-video, #intro-scene.opened #blur-letter-bg{ opacity:0; transform:scale(1.06); }
-#intro-scene.opened #hero-video, #intro-scene.opened #blur-hero-bg{ opacity:1; transform:scale(1); }
+#letter-video{
+  z-index:2; background:var(--putty);
+  transition:opacity .5s cubic-bezier(.55,0,1,.45), transform .5s cubic-bezier(.55,0,1,.45), filter .5s cubic-bezier(.55,0,1,.45);
+}
+#hero-video{
+  z-index:1; opacity:0; transform:scale(1.16); filter:blur(14px);
+  transition:opacity .55s cubic-bezier(.22,1,.36,1), transform .55s cubic-bezier(.22,1,.36,1), filter .55s cubic-bezier(.22,1,.36,1);
+}
+#intro-scene.opened #letter-video, #intro-scene.opened #blur-letter-bg{ opacity:0; transform:scale(1.4); filter:blur(20px); }
+#intro-scene.opened #hero-video, #intro-scene.opened #blur-hero-bg{ opacity:1; transform:scale(1); filter:blur(0); }
 #intro-scene.is-static #letter-video, #intro-scene.is-static #blur-letter-bg{ display:none; }
-#intro-scene.is-static #hero-video, #intro-scene.is-static #blur-hero-bg{ opacity:1; transform:none; }
+#intro-scene.is-static #hero-video, #intro-scene.is-static #blur-hero-bg{ opacity:1; transform:none; filter:none; }
 .hero-overlay{
   position:absolute; inset:0; z-index:3;
   background:linear-gradient(180deg, rgba(20,20,18,.18) 0%, rgba(20,20,18,.18) 40%, rgba(15,15,13,.72) 100%);
@@ -111,16 +120,16 @@ body{
   font-family:'Archivo',sans-serif; font-size:11px; letter-spacing:4px; text-transform:uppercase; color:#f3efe4;
   border:1px solid rgba(243,239,228,.55); border-radius:30px; padding:13px 30px;
   backdrop-filter:blur(6px); background:rgba(20,20,18,.28);
-  animation:tapPulse 2.2s ease-in-out infinite;
+  animation:tapPulse 3.4s ease-in-out infinite;
 }
-@keyframes tapPulse{ 0%,100%{ opacity:.8; transform:translateY(0); } 50%{ opacity:1; transform:translateY(-5px); } }
+@keyframes tapPulse{ 0%,100%{ opacity:.82; transform:translateY(0); } 50%{ opacity:1; transform:translateY(-3px); } }
 #intro-scene.opening #tap-open, #intro-scene.opened #tap-open, #intro-scene.is-static #tap-open{ opacity:0; pointer-events:none; }
 
 html.intro-locked, html.intro-locked body{ overflow:hidden; height:100%; }
 
 @media (prefers-reduced-motion: reduce){
   #letter-video, #blur-letter-bg{ display:none; }
-  #hero-video, #blur-hero-bg{ opacity:1; }
+  #hero-video, #blur-hero-bg{ opacity:1; transform:none; filter:none; }
   #tap-open{ display:none; }
   .intro-reveal{ opacity:1; transform:none; transition:none; }
 }
@@ -453,7 +462,7 @@ footer .fdate{ margin-top:8px; font-size:10.5px; letter-spacing:3px; color:var(-
         if(endedHandled) return;
         endedHandled = true;
         scene.classList.add('opened');
-        setTimeout(function(){ showRevealsNow(); unlockScroll(); }, 950);
+        setTimeout(function(){ showRevealsNow(); unlockScroll(); }, 400);
       }
       function openLetter(){
         if(opened || failed) return;
@@ -463,7 +472,7 @@ footer .fdate{ margin-top:8px; font-size:10.5px; letter-spacing:3px; color:var(-
         letterVideo.play().catch(function(){});
         heroVideo.play().catch(function(){});
         letterVideo.addEventListener('ended', onLetterEnded);
-        setTimeout(onLetterEnded, (letterVideo.duration ? letterVideo.duration * 1000 : 5000) + 1500);
+        setTimeout(onLetterEnded, (letterVideo.duration ? letterVideo.duration * 1000 : 5000) + 800);
       }
 
       lockScroll();
