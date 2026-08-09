@@ -38,6 +38,16 @@ body{
 .wrap{ max-width:720px; margin:0 auto; padding:0 26px; }
 
 /* =====================================================
+   LETTER — a real short video (envelope + wax seal opening),
+   produced externally. We only scrub its timeline to scroll
+   position; zero animation logic lives in CSS here.
+===================================================== */
+#letter-scene{ position:relative; height:220vh; background:var(--putty); }
+#letter-stage{ position:sticky; top:0; height:100vh; height:100svh; overflow:hidden; display:flex; align-items:center; justify-content:center; background:var(--putty); }
+#letter-video{ width:100%; height:100%; object-fit:cover; display:block; }
+@media (prefers-reduced-motion: reduce){ #letter-scene{ display:none; } }
+
+/* =====================================================
    HERO — one real engagement photo, same Ken Burns treatment
    as the save-the-date. No invented imagery, no scroll physics.
 ===================================================== */
@@ -158,6 +168,12 @@ footer .fdate{ margin-top:8px; font-size:10.5px; letter-spacing:3px; color:var(-
 </style>
 </head>
 <body>
+
+<section id="letter-scene">
+  <div id="letter-stage">
+    <video id="letter-video" muted playsinline preload="auto" src="/video/carta-apertura.mp4"></video>
+  </div>
+</section>
 
 <section id="hero">
   <div class="hero-bg" style="background-image:url('/photos/hero-dip.jpg')"></div>
@@ -336,6 +352,40 @@ footer .fdate{ margin-top:8px; font-size:10.5px; letter-spacing:3px; color:var(-
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 <script>
 (function(){
+  var scene = document.getElementById('letter-scene');
+  var video = document.getElementById('letter-video');
+  var reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  if(scene && video && !reducedMotion){
+    var ready = false, failed = false, ticking = false;
+
+    function removeScene(){ if(scene.parentNode){ scene.parentNode.removeChild(scene); } }
+
+    video.addEventListener('loadedmetadata', function(){ ready = true; });
+    video.addEventListener('error', function(){ failed = true; removeScene(); });
+    video.load();
+    setTimeout(function(){ if(!ready && !failed){ failed = true; removeScene(); } }, 8000);
+
+    function update(){
+      ticking = false;
+      if(failed || !ready) return;
+      var vh = window.innerHeight;
+      var total = scene.offsetHeight - vh;
+      var p = total > 0 ? (-scene.getBoundingClientRect().top) / total : 0;
+      p = Math.max(0, Math.min(1, p));
+      var t = p * video.duration;
+      if(isFinite(t)) video.currentTime = t;
+    }
+    function onScroll(){
+      if(!ticking){ ticking = true; requestAnimationFrame(update); }
+    }
+    window.addEventListener('scroll', onScroll, { passive:true });
+    window.addEventListener('resize', onScroll, { passive:true });
+    onScroll();
+  } else if(scene && reducedMotion){
+    scene.parentNode.removeChild(scene);
+  }
+
   var audio = document.getElementById('audio');
   var waves = document.getElementById('waves');
   var playing = false;
