@@ -52,11 +52,12 @@ body{
   perspective:1500px;
 }
 .letter-text{
+  /* no will-change: it scales up ~5-6x during the handoff, and a promoted
+     layer rasterizes at the small size first then stretches it — blurry. */
   grid-area:1/1; width:min(560px,90vw); aspect-ratio:1891/1263;
   z-index:3; pointer-events:none; text-align:center; opacity:0;
   display:flex; flex-direction:column; align-items:center;
   padding-top:9%;
-  will-change:transform, opacity;
 }
 .letter-eyebrow{ font-size:9px; letter-spacing:3px; text-transform:uppercase; color:var(--cobalt); margin-bottom:3px; opacity:.85; }
 .letter-title-on-letter{
@@ -68,8 +69,8 @@ body{
   box-shadow:0 30px 70px -20px rgba(30,20,8,0.45);
 }
 .hinge-shadow{
-  position:absolute; left:0; right:0; top:50%; height:28%; z-index:4; pointer-events:none;
-  background:linear-gradient(to bottom, rgba(20,12,4,.55) 0%, rgba(20,12,4,0) 100%);
+  position:absolute; left:0; right:0; top:49%; height:12%; z-index:4; pointer-events:none;
+  background:linear-gradient(to bottom, rgba(20,12,4,.7) 0%, rgba(20,12,4,0) 100%);
   opacity:0;
 }
 .flap-3d{
@@ -459,7 +460,7 @@ footer .fdate{ margin-top:8px; font-size:10.5px; letter-spacing:3px; color:var(-
        on the letter right at the hinge as the gap opens. */
     var shade = clamp(Math.abs(rot) / 95, 0, 1) * 0.45;
     flapShade.style.opacity = shade.toFixed(2);
-    var hinge = smoothstep(p, 0.08, 0.20) * (1 - smoothstep(p, 0.30, 0.50));
+    var hinge = smoothstep(p, 0.06, 0.13) * (1 - smoothstep(p, 0.14, 0.24));
     hingeShadow.style.opacity = hinge.toFixed(2);
 
     var exitFade = 1 - smoothstep(p, 0.70, 0.92);
