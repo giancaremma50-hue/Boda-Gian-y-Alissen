@@ -17,9 +17,9 @@
   --rule:#cfc9ba;
   --card:#f2eee2;
 }
-/* Deliberately single-theme: the hero is a real photograph of a kraft
-   envelope, which can't "go dark" — keeping the rest of the page in the
-   same warm light palette avoids a seam right at the letter → page handoff. */
+/* Deliberately single-theme: the hero is a real engagement photo, which
+   can't "go dark" — keeping the rest of the page in the same warm light
+   palette avoids a seam right where the photo hero meets the page. */
 
 html{ scroll-behavior:smooth; }
 @media (prefers-reduced-motion: reduce){
@@ -38,57 +38,31 @@ body{
 .wrap{ max-width:720px; margin:0 auto; padding:0 26px; }
 
 /* =====================================================
-   ENVELOPE SCENE — real photographs, scroll-scrubbed reveal wipe
+   HERO — one real engagement photo, same Ken Burns treatment
+   as the save-the-date. No invented imagery, no scroll physics.
 ===================================================== */
-#envelope-scene{ position:relative; height:280vh; background:#e3ddce; }
-#envelope-stage{
-  position:sticky; top:0; height:100vh; height:100svh; overflow:hidden;
-  display:grid; place-items:center;
-  background:#e3ddce;
+#hero{
+  position:relative; min-height:100vh; min-height:100svh;
+  display:flex; align-items:flex-end; overflow:hidden;
 }
-.env-photo-wrap{
-  grid-area:1/1; position:relative; width:min(560px,90vw); aspect-ratio:1891/1263;
-  will-change:transform, opacity;
+.hero-bg{
+  position:absolute; inset:0;
+  background-size:cover; background-position:center 62%;
+  animation:kenburns 16s ease-out forwards;
 }
-.letter-text{
-  /* no will-change: it scales up ~5-6x during the handoff, and a promoted
-     layer rasterizes at the small size first then stretches it — blurry. */
-  grid-area:1/1; width:min(560px,90vw); aspect-ratio:1891/1263;
-  z-index:3; pointer-events:none; text-align:center; opacity:0;
-  display:flex; flex-direction:column; align-items:center;
-  padding-top:9%;
+@keyframes kenburns{ from{ transform:scale(1); } to{ transform:scale(1.08); } }
+@media (prefers-reduced-motion: reduce){ .hero-bg{ animation:none; } }
+.hero-overlay{
+  position:absolute; inset:0;
+  background:linear-gradient(180deg, rgba(20,20,18,.18) 0%, rgba(20,20,18,.18) 40%, rgba(15,15,13,.72) 100%);
 }
-.letter-eyebrow{ font-size:9px; letter-spacing:3px; text-transform:uppercase; color:var(--cobalt); margin-bottom:3px; opacity:.85; }
-.letter-title-on-letter{
-  font-family:'Fraunces',serif; font-style:italic; font-weight:400;
-  font-size:clamp(15px,3.6vw,24px); line-height:0.95; color:var(--ink);
-}
-.env-photo{
-  position:absolute; inset:0; width:100%; height:100%; object-fit:cover; border-radius:2px;
-  box-shadow:0 30px 70px -20px rgba(30,20,8,0.45);
-}
-.env-photo.f1{ z-index:1; }
-.env-photo.f2{ z-index:2; opacity:0; }
-.env-photo.f3{ z-index:3; opacity:0; }
-.env-photo.f4{ z-index:4; opacity:0; }
-.env-photo.f5{ z-index:5; opacity:0; }
-.env-photo.f6{ z-index:6; opacity:0; }
-.scroll-hint{
-  position:absolute; bottom:9%; left:50%; transform:translateX(-50%);
-  font-size:10px; letter-spacing:4px; text-transform:uppercase; color:#5c4a2c; opacity:.8;
-  display:flex; flex-direction:column; align-items:center; gap:8px;
-}
-.scroll-hint .stem{ width:1px; height:26px; background:linear-gradient(to bottom, rgba(92,74,44,.6), transparent); }
-#envelope-scene.done .scroll-hint{ opacity:0; transition:opacity .4s ease; }
-
-@media (prefers-reduced-motion: reduce){
-  #envelope-scene{ height:auto; }
-  #envelope-stage{ position:relative; height:auto; padding:70px 0; }
-  .env-photo.f1, .env-photo.f2, .env-photo.f3, .env-photo.f4, .env-photo.f5{ display:none; }
-  .env-photo.f6{ opacity:1; }
-  .scroll-hint{ display:none; }
-  .letter-text{ display:none; }
-}
+.hero-content{ position:relative; z-index:2; width:100%; padding-bottom:56px; text-align:center; color:#f3efe4; }
+.hero-eyebrow{ font-size:11.5px; letter-spacing:6px; text-transform:uppercase; color:#cdd8c6; margin-bottom:16px; }
+#hero .masthead-title{ color:#f6f3ec; }
+#hero .masthead-sub{ color:#cdd8c6; margin-top:16px; }
+.reveal.d1{ transition-delay:.08s; }
+.reveal.d2{ transition-delay:.22s; }
+.reveal.d3{ transition-delay:.36s; }
 
 /* =====================================================
    PAGE (Cuaderno de Antigua)
@@ -96,7 +70,6 @@ body{
 #masthead{ padding:20px 0 0; }
 .mh-row{ display:flex; justify-content:space-between; align-items:center; padding:16px 0; border-bottom:1px solid var(--rule); font-size:10.5px; letter-spacing:3px; text-transform:uppercase; color:var(--olive); }
 
-#hero{ position:relative; padding:64px 0 40px; overflow:hidden; text-align:center; }
 .masthead-title{ font-family:'Fraunces',serif; font-style:italic; font-weight:400; font-size:clamp(54px,15vw,108px); line-height:0.9; letter-spacing:-1px; }
 .masthead-sub{ margin-top:14px; font-size:12px; letter-spacing:4px; text-transform:uppercase; color:var(--cobalt); }
 
@@ -186,23 +159,15 @@ footer .fdate{ margin-top:8px; font-size:10.5px; letter-spacing:3px; color:var(-
 </head>
 <body>
 
-<div id="envelope-scene">
-  <div id="envelope-stage">
-    <div class="env-photo-wrap">
-      <img class="env-photo f1" src="/photos/sobre-fb1.jpg" alt="Sobre cerrado">
-      <img class="env-photo f2" src="/photos/sobre-fb2.jpg" alt="Sello agrietándose">
-      <img class="env-photo f3" src="/photos/sobre-fb3.jpg" alt="Solapa empezando a abrir">
-      <img class="env-photo f4" src="/photos/sobre-fb4.jpg" alt="Solapa a medio abrir">
-      <img class="env-photo f5" src="/photos/sobre-fb5.jpg" alt="Solapa casi abierta">
-      <img class="env-photo f6" src="/photos/sobre-fb6.jpg" alt="Sobre abierto con la carta a la vista">
-    </div>
-    <div class="letter-text" id="letterText">
-      <p class="letter-eyebrow">Nos casamos</p>
-      <h1 class="letter-title-on-letter" id="letterTitle">Gian<br>&amp; Alissen</h1>
-    </div>
-    <p class="scroll-hint"><span>Desliza para abrir</span><span class="stem"></span></p>
+<section id="hero">
+  <div class="hero-bg" style="background-image:url('/photos/hero-dip.jpg')"></div>
+  <div class="hero-overlay"></div>
+  <div class="wrap hero-content">
+    <p class="hero-eyebrow reveal d1">Nos casamos</p>
+    <h1 class="masthead-title reveal d2">Gian<br>&amp; Alissen</h1>
+    <p class="masthead-sub reveal d3">Antigua Guatemala — 12 · 02 · 2027</p>
   </div>
-</div>
+</section>
 
 <header id="masthead">
   <div class="wrap">
@@ -212,13 +177,6 @@ footer .fdate{ margin-top:8px; font-size:10.5px; letter-spacing:3px; color:var(-
     </div>
   </div>
 </header>
-
-<section id="hero">
-  <div class="wrap">
-    <h1 class="masthead-title">Gian<br>&amp; Alissen</h1>
-    <p class="masthead-sub">Nos casamos — guarden la fecha</p>
-  </div>
-</section>
 
 <section id="lede">
   <div class="wrap">
@@ -378,8 +336,6 @@ footer .fdate{ margin-top:8px; font-size:10.5px; letter-spacing:3px; color:var(-
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 <script>
 (function(){
-  var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
   var audio = document.getElementById('audio');
   var waves = document.getElementById('waves');
   var playing = false;
@@ -391,94 +347,7 @@ footer .fdate{ margin-top:8px; font-size:10.5px; letter-spacing:3px; color:var(-
     audio.play().then(function(){ waves.classList.remove('off'); playing = true; }).catch(function(){});
   }
 
-  /* ─── ENVELOPE SCROLL SCENE — 3D flap ─── */
-  var scene = document.getElementById('envelope-scene');
-  var wrap = scene ? scene.querySelector('.env-photo-wrap') : null;
-  var f2 = scene ? scene.querySelector('.f2') : null;
-  var f3 = scene ? scene.querySelector('.f3') : null;
-  var f4 = scene ? scene.querySelector('.f4') : null;
-  var f5 = scene ? scene.querySelector('.f5') : null;
-  var f6 = scene ? scene.querySelector('.f6') : null;
-  var letterText = document.getElementById('letterText');
-  var letterTitle = document.getElementById('letterTitle');
-  var heroTitle = document.querySelector('.masthead-title');
-
-  function clamp(v, a, b){ return Math.max(a, Math.min(b, v)); }
-  function smoothstep(v, lo, hi){ var t = clamp((v - lo) / (hi - lo), 0, 1); return t * t * (3 - 2 * t); }
-
-  /* FLIP setup: measure once (untransformed) how far the on-letter title
-     sits from the real page title it hands off to, so the text can travel
-     that exact distance as the envelope opens — it visually grows out of
-     the letter instead of just cross-fading with a separate heading. */
-  var flip = null;
-  function computeFlip(){
-    if(!letterTitle || !heroTitle || !scene) return;
-    var was = letterText.style.transform;
-    letterText.style.transform = 'none';
-    var lRect = letterTitle.getBoundingClientRect();
-    letterText.style.transform = was;
-    var hRect = heroTitle.getBoundingClientRect();
-    var heroAbsTop = hRect.top + window.scrollY;
-    var total0 = scene.offsetHeight - window.innerHeight;
-    var sceneEndScrollY = scene.offsetTop + total0;
-    var heroTopAtSceneEnd = heroAbsTop - sceneEndScrollY;
-    flip = {
-      dx: (hRect.left + hRect.width / 2) - (lRect.left + lRect.width / 2),
-      dy: (heroTopAtSceneEnd + hRect.height / 2) - (lRect.top + lRect.height / 2),
-      scale: hRect.width / lRect.width
-    };
-  }
-  computeFlip();
-  window.addEventListener('resize', computeFlip);
-
-  var ticking = false;
-  function updateScene(){
-    ticking = false;
-    if(!scene || !f6 || reduced) return;
-    var rect = scene.getBoundingClientRect();
-    var total = scene.offsetHeight - window.innerHeight;
-    var scrolled = -rect.top;
-    var p = clamp(total > 0 ? scrolled / total : 0, 0, 1);
-
-    if(p > 0.02) tryStartAudio();
-
-    /* Six real photographs of the same envelope, each one an actual
-       instant of it opening — crossfading between them, no synthetic
-       3D, no invented shadows. Each frame already carries its own
-       real light and shadow from the shoot. */
-    f2.style.opacity = smoothstep(p, 0.05, 0.14).toFixed(2);
-    f3.style.opacity = smoothstep(p, 0.17, 0.26).toFixed(2);
-    f4.style.opacity = smoothstep(p, 0.29, 0.38).toFixed(2);
-    f5.style.opacity = smoothstep(p, 0.41, 0.50).toFixed(2);
-    f6.style.opacity = smoothstep(p, 0.53, 0.62).toFixed(2);
-
-    var exitFade = 1 - smoothstep(p, 0.78, 0.94);
-    var scale = 1 + p * 0.06;
-    var lift = smoothstep(p, 0.78, 1) * -30;
-    wrap.style.opacity = exitFade;
-    wrap.style.transform = 'scale(' + scale.toFixed(3) + ') translateY(' + lift.toFixed(1) + 'px)';
-
-    /* The invitation text appears on the letter once it's open, then —
-       instead of just fading — flies to and grows into the real page
-       title, so the information visibly comes out of the letter rather
-       than the scene simply dissolving into unrelated content underneath. */
-    var textIn = smoothstep(p, 0.58, 0.72);
-    var handoff = smoothstep(p, 0.82, 1);
-    letterText.style.opacity = (textIn * (1 - handoff)).toFixed(2);
-    if(flip){
-      var tx = flip.dx * handoff, ty = flip.dy * handoff;
-      var sc = 1 + (flip.scale - 1) * handoff;
-      letterText.style.transform = 'translate(' + tx.toFixed(1) + 'px,' + ty.toFixed(1) + 'px) scale(' + sc.toFixed(3) + ')';
-    }
-
-    scene.classList.toggle('done', p > 0.04);
-  }
-
-  function onScroll(){
-    if(!ticking){ ticking = true; requestAnimationFrame(updateScene); }
-  }
-  window.addEventListener('scroll', onScroll, { passive:true });
-  updateScene();
+  window.addEventListener('scroll', tryStartAudio, { passive:true, once:true });
 
   /* ─── REVEAL ON SCROLL ─── */
   var reveals = document.querySelectorAll('.reveal');
