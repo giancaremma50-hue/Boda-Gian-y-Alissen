@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Invitación · Gian &amp; Alissen</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,340;1,400&family=Archivo:wght@400;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+
+:root{
+  --putty:#e9e4d6;
+  --ink:#201f1c;
+  --cobalt:#2b4570;
+  --cobalt-light:#5c7aa6;
+  --olive:#7a7566;
+  --rule:#cfc9ba;
+  --card:#f2eee2;
+}
+@media (prefers-color-scheme: dark){
+  :root{ --putty:#1b1a17; --ink:#eee9dc; --cobalt:#7fa0d1; --cobalt-light:#a9c2e3; --olive:#a39d8c; --rule:#3a382f; --card:#242220; }
+}
+:root[data-theme="dark"]{ --putty:#1b1a17; --ink:#eee9dc; --cobalt:#7fa0d1; --cobalt-light:#a9c2e3; --olive:#a39d8c; --rule:#3a382f; --card:#242220; }
+:root[data-theme="light"]{ --putty:#e9e4d6; --ink:#201f1c; --cobalt:#2b4570; --cobalt-light:#5c7aa6; --olive:#7a7566; --rule:#cfc9ba; --card:#f2eee2; }
+
+html{ scroll-behavior:smooth; }
+@media (prefers-reduced-motion: reduce){
+  html{ scroll-behavior:auto; }
+  *,*::before,*::after{ animation-duration:0.01ms !important; animation-iteration-count:1 !important; transition-duration:0.01ms !important; }
+}
+
+body{
+  font-family:'Archivo',sans-serif;
+  background:var(--putty);
+  color:var(--ink);
+  overflow-x:hidden;
+  -webkit-font-smoothing:antialiased;
+}
+
+.wrap{ max-width:720px; margin:0 auto; padding:0 26px; }
+
+/* =====================================================
+   ENVELOPE SCENE — real photographs, scroll-scrubbed reveal wipe
+===================================================== */
+#envelope-scene{ position:relative; height:230vh; background:#e3ddce; }
+#envelope-stage{
+  position:sticky; top:0; height:100vh; height:100svh; overflow:hidden;
+  display:flex; align-items:center; justify-content:center;
+  background:#e3ddce;
+}
+.env-photo-wrap{
+  position:relative; width:min(560px,90vw); aspect-ratio:4/3;
+  will-change:transform, opacity;
+}
+.env-photo{
+  position:absolute; inset:0; width:100%; height:100%; object-fit:cover; border-radius:2px;
+  box-shadow:0 30px 70px -20px rgba(30,20,8,0.45);
+}
+.env-photo.open{ z-index:1; }
+.env-photo.closed{ z-index:2; -webkit-mask-image:linear-gradient(#000,#000); mask-image:linear-gradient(#000,#000); }
+.scroll-hint{
+  position:absolute; bottom:9%; left:50%; transform:translateX(-50%);
+  font-size:10px; letter-spacing:4px; text-transform:uppercase; color:#5c4a2c; opacity:.8;
+  display:flex; flex-direction:column; align-items:center; gap:8px;
+}
+.scroll-hint .stem{ width:1px; height:26px; background:linear-gradient(to bottom, rgba(92,74,44,.6), transparent); }
+#envelope-scene.done .scroll-hint{ opacity:0; transition:opacity .4s ease; }
+
+@media (prefers-reduced-motion: reduce){
+  #envelope-scene{ height:auto; }
+  #envelope-stage{ position:relative; height:auto; padding:70px 0; }
+  .env-photo.closed{ display:none; }
+  .env-photo.open{ position:relative; opacity:1; }
+  .scroll-hint{ display:none; }
+}
+
+/* =====================================================
+   PAGE (Cuaderno de Antigua)
+===================================================== */
+#masthead{ padding:20px 0 0; }
+.mh-row{ display:flex; justify-content:space-between; align-items:center; padding:16px 0; border-bottom:1px solid var(--rule); font-size:10.5px; letter-spacing:3px; text-transform:uppercase; color:var(--olive); }
+
+#hero{ position:relative; padding:64px 0 40px; overflow:hidden; text-align:center; }
+.masthead-title{ font-family:'Fraunces',serif; font-style:italic; font-weight:400; font-size:clamp(54px,15vw,108px); line-height:0.9; letter-spacing:-1px; }
+.masthead-sub{ margin-top:14px; font-size:12px; letter-spacing:4px; text-transform:uppercase; color:var(--cobalt); }
+
+#lede{ padding:64px 0 20px; }
+.lede-text{ font-family:'Fraunces',serif; font-style:italic; font-weight:340; font-size:clamp(19px,4.4vw,24px); line-height:1.7; max-width:460px; text-align:left; }
+.lede-text .drop{ font-size:2.6em; float:left; line-height:0.8; padding-right:8px; color:var(--cobalt); }
+
+.section{ padding:70px 0; border-top:1px solid var(--rule); }
+.kicker{ font-size:10.5px; letter-spacing:4px; text-transform:uppercase; color:var(--cobalt); margin-bottom:8px; }
+.h2{ font-family:'Fraunces',serif; font-style:italic; font-weight:400; font-size:clamp(28px,7vw,40px); margin-bottom:44px; }
+
+.run-item{ display:grid; grid-template-columns:56px 1fr; gap:20px; padding:28px 0; border-top:1px solid var(--rule); align-items:start; }
+.run-item:first-of-type{ border-top:none; }
+.run-num{ font-family:'Fraunces',serif; font-style:italic; font-size:30px; color:var(--cobalt-light); }
+.run-body h3{ font-size:15px; letter-spacing:2px; text-transform:uppercase; margin-bottom:6px; }
+.run-body p{ font-size:14.5px; color:var(--olive); line-height:1.6; }
+.run-badge{ display:inline-block; margin-top:8px; font-size:9.5px; letter-spacing:2.5px; text-transform:uppercase; color:var(--cobalt); border-bottom:1px dashed var(--cobalt); padding-bottom:3px; }
+
+.swatch-card{ display:flex; gap:22px; align-items:center; background:var(--card); border:1px solid var(--rule); padding:26px; }
+.swatch-block{ width:64px; height:64px; flex:none; background:repeating-linear-gradient(45deg, var(--rule), var(--rule) 6px, transparent 6px, transparent 12px); border:1px solid var(--olive); }
+.swatch-copy h3{ font-size:14px; letter-spacing:2px; text-transform:uppercase; margin-bottom:6px; }
+.swatch-copy p{ font-size:13.5px; color:var(--olive); line-height:1.6; }
+
+#gallery{ border-top:1px solid var(--rule); padding-bottom:20px; }
+.filmstrip{ display:flex; gap:14px; overflow-x:auto; scroll-snap-type:x mandatory; padding:6px 26px 26px; margin:0 -26px; -webkit-overflow-scrolling:touch; scrollbar-width:none; }
+.filmstrip::-webkit-scrollbar{ display:none; }
+.neg{ flex:0 0 auto; width:62vw; max-width:250px; scroll-snap-align:start; position:relative; cursor:zoom-in; }
+.neg img{ width:100%; aspect-ratio:4/5; object-fit:cover; display:block; filter:grayscale(0.06) contrast(1.02); transition:transform .5s cubic-bezier(.22,1,.36,1); }
+.neg:hover img{ transform:scale(1.03); }
+.neg .frame-no{ position:absolute; top:8px; left:8px; font-size:10px; letter-spacing:1px; color:#fff; background:rgba(32,31,28,0.55); padding:3px 7px; }
+.strip-hint{ font-size:11px; color:var(--olive); text-align:center; margin-top:4px; letter-spacing:1px; }
+
+#lightbox{ position:fixed; inset:0; z-index:400; background:rgba(20,19,17,0.9); display:flex; align-items:center; justify-content:center; opacity:0; pointer-events:none; transition:opacity .35s ease; }
+#lightbox.open{ opacity:1; pointer-events:auto; }
+#lightbox img{ max-width:min(88vw,520px); max-height:82vh; object-fit:contain; box-shadow:0 30px 60px -20px rgba(0,0,0,0.6); transition:transform .5s cubic-bezier(.22,1,.36,1), opacity .5s ease; transform:scale(.94); opacity:0; }
+#lightbox.open img{ transform:scale(1); opacity:1; }
+#lightbox-close{ position:absolute; top:22px; right:22px; width:38px; height:38px; border-radius:50%; background:rgba(255,255,255,0.08); display:flex; align-items:center; justify-content:center; cursor:pointer; color:#eee9dc; }
+
+/* ---------- RSVP ---------- */
+#rsvp{ border-top:1px solid var(--rule); }
+.coupon{ border:1px dashed var(--olive); padding:34px 26px; text-align:center; position:relative; }
+.coupon::before, .coupon::after{ content:''; position:absolute; width:14px; height:14px; border-radius:50%; background:var(--putty); border:1px dashed var(--olive); top:50%; margin-top:-7px; }
+.coupon::before{ left:-8px; } .coupon::after{ right:-8px; }
+.coupon h3{ font-family:'Fraunces',serif; font-style:italic; font-size:26px; margin-bottom:10px; }
+.coupon p{ font-size:13px; color:var(--olive); margin-bottom:22px; max-width:340px; margin-left:auto; margin-right:auto; line-height:1.6; }
+.btn{ display:inline-block; padding:15px 40px; background:var(--cobalt); color:#f2eee2; font-size:11px; letter-spacing:3px; text-transform:uppercase; border:none; cursor:pointer; transition:transform .25s cubic-bezier(.34,1.56,.64,1); }
+.btn:active{ transform:scale(.96); }
+.btn:disabled{ opacity:.6; cursor:default; }
+
+.form-wrap{ width:min(400px,88vw); margin:0 auto; text-align:left; }
+.fgroup{ margin-bottom:18px; text-align:left; }
+.fgroup label{ display:block; font-size:9.5px; letter-spacing:3px; text-transform:uppercase; color:var(--olive); margin-bottom:7px; }
+.fgroup input{ width:100%; background:transparent; border:none; border-bottom:1px solid var(--rule); color:var(--ink); font-family:'Fraunces',serif; font-size:18px; padding:8px 2px; outline:none; border-radius:0; transition:border-color .3s; }
+.fgroup input::placeholder{ color:var(--olive); opacity:.7; font-style:italic; }
+.fgroup input:focus{ border-bottom-color:var(--cobalt); }
+.guest-name-display{ font-family:'Fraunces',serif; font-style:italic; font-size:20px; color:var(--cobalt); padding:6px 0; border-bottom:1px solid var(--rule); margin-bottom:4px; }
+.adults-note{ font-size:12.5px; color:var(--olive); border-left:2px solid var(--cobalt); padding:8px 12px; margin:0 0 18px; line-height:1.6; text-align:left; }
+.radio-row{ display:flex; gap:10px; margin:4px 0 0; }
+.ropt{ flex:1; padding:11px 8px; border:1px solid var(--rule); text-align:center; cursor:pointer; font-size:10px; letter-spacing:2px; text-transform:uppercase; color:var(--olive); transition:all .3s; user-select:none; }
+.ropt.sel{ border-color:var(--cobalt); color:var(--cobalt); background:color-mix(in srgb, var(--cobalt) 10%, transparent); }
+.companion-extra{ display:none; }
+.companion-extra.on{ display:block; }
+.comp-slot{ margin-bottom:10px; }
+.comp-slot label{ display:block; font-size:10px; letter-spacing:2px; text-transform:uppercase; color:var(--olive); margin-bottom:5px; }
+#code-error, #submit-error{ color:#a3432c; text-align:center; font-size:13px; margin-top:10px; }
+.cal-section{ margin-top:22px; padding-top:18px; border-top:1px solid var(--rule); text-align:center; }
+.cal-label{ font-size:9px; letter-spacing:3px; text-transform:uppercase; color:var(--olive); margin-bottom:12px; }
+.cal-btn{ display:inline-flex; align-items:center; gap:8px; padding:12px 26px; border:1px solid var(--rule); background:transparent; color:var(--ink); font-size:9px; letter-spacing:3px; text-transform:uppercase; cursor:pointer; transition:border-color .3s; -webkit-tap-highlight-color:transparent; }
+.cal-btn:hover{ border-color:var(--cobalt); }
+.thanks-date{ margin-top:14px; font-size:10.5px; letter-spacing:3px; color:var(--olive); text-transform:uppercase; }
+
+footer{ padding:56px 0 90px; text-align:center; border-top:1px solid var(--rule); }
+footer .fmark{ font-family:'Fraunces',serif; font-style:italic; font-size:22px; }
+footer .fdate{ margin-top:8px; font-size:10.5px; letter-spacing:3px; color:var(--olive); text-transform:uppercase; }
+
+#audio-fab{ position:fixed; bottom:22px; right:18px; z-index:200; width:44px; height:44px; border-radius:50%; border:1px solid var(--rule); background:color-mix(in srgb, var(--putty) 80%, transparent); backdrop-filter:blur(10px); display:flex; align-items:center; justify-content:center; cursor:pointer; }
+.waves{ display:flex; align-items:center; gap:2.5px; height:15px; }
+.waves span{ width:2.5px; background:var(--cobalt); border-radius:2px; animation:wv 1.1s ease-in-out infinite; }
+.waves span:nth-child(1){ height:6px; animation-delay:0s; } .waves span:nth-child(2){ height:13px; animation-delay:.18s; }
+.waves span:nth-child(3){ height:8px; animation-delay:.32s; } .waves span:nth-child(4){ height:11px; animation-delay:.08s; }
+.waves.off span{ animation-play-state:paused; opacity:.35; }
+@keyframes wv{ 0%,100%{ transform:scaleY(1); } 50%{ transform:scaleY(.25); } }
+
+.reveal{ opacity:0; transform:translateY(18px); transition:opacity .7s cubic-bezier(.22,1,.36,1), transform .7s cubic-bezier(.22,1,.36,1); }
+.reveal.visible{ opacity:1; transform:translateY(0); }
+</style>
+</head>
+<body>
+
+<div id="envelope-scene">
+  <div id="envelope-stage">
+    <div class="env-photo-wrap">
+      <img class="env-photo open" id="env-open-photo" src="/photos/sobre-abierto.jpg" alt="Sobre abierto con la carta a la vista">
+      <img class="env-photo closed" id="env-closed-photo" src="/photos/sobre-cerrado.jpg" alt="Sobre de kraft cerrado con sello de cera dorado">
+    </div>
+    <p class="scroll-hint"><span>Desliza para abrir</span><span class="stem"></span></p>
+  </div>
+</div>
+
+<header id="masthead">
+  <div class="wrap">
+    <div class="mh-row">
+      <span>Antigua Guatemala</span>
+      <span>Vol. I — 12.02.2027</span>
+    </div>
+  </div>
+</header>
+
+<section id="hero">
+  <div class="wrap">
+    <h1 class="masthead-title">Gian<br>&amp; Alissen</h1>
+    <p class="masthead-sub">Nos casamos — guarden la fecha</p>
+  </div>
+</section>
+
+<section id="lede">
+  <div class="wrap">
+    <p class="lede-text reveal"><span class="drop">D</span>espués de anunciarles la fecha, llega el turno de los detalles.
+    Este pequeño cuaderno reúne todo lo que necesitas saber para acompañarnos
+    en Antigua Guatemala — dónde, cuándo y cómo vestir para la ocasión.</p>
+  </div>
+</section>
+
+<section class="section" id="itinerario">
+  <div class="wrap">
+    <p class="kicker">Viernes 12 de febrero, 2027</p>
+    <h2 class="h2 reveal">Itinerario del día</h2>
+    <div class="run-item reveal">
+      <div class="run-num">01</div>
+      <div class="run-body">
+        <h3>Ceremonia</h3>
+        <p>Antigua Guatemala</p>
+        <span class="run-badge">Lugar y hora por confirmar</span>
+      </div>
+    </div>
+    <div class="run-item reveal">
+      <div class="run-num">02</div>
+      <div class="run-body">
+        <h3>Recepción</h3>
+        <p>Antigua Guatemala</p>
+        <span class="run-badge">Lugar y hora por confirmar</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="vestimenta">
+  <div class="wrap">
+    <p class="kicker">Código de vestimenta</p>
+    <h2 class="h2 reveal">Muestra por confirmar</h2>
+    <div class="swatch-card reveal">
+      <div class="swatch-block"></div>
+      <div class="swatch-copy">
+        <h3>Próximamente</h3>
+        <p>Estamos afinando la paleta de colores y el nivel de formalidad. Lo anunciamos pronto — guarda este espacio.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="gallery">
+  <div class="wrap">
+    <p class="kicker">Contactos</p>
+    <h2 class="h2 reveal">Antigua en seis cuadros</h2>
+  </div>
+  <div class="filmstrip" id="filmstrip">
+    <div class="neg" data-full="/photos/hero-dip.jpg"><span class="frame-no">01</span><img src="/photos/hero-dip.jpg" alt="Gian y Alissen en las calles de Antigua"></div>
+    <div class="neg" data-full="/photos/invitacion-iglesia.jpg"><span class="frame-no">02</span><img src="/photos/invitacion-iglesia.jpg" alt="Frente a la iglesia colonial"></div>
+    <div class="neg" data-full="/photos/dresscode-escalones.jpg"><span class="frame-no">03</span><img src="/photos/dresscode-escalones.jpg" alt="Sentados en los escalones"></div>
+    <div class="neg" data-full="/photos/slideshow-beso-arco.jpg"><span class="frame-no">04</span><img src="/photos/slideshow-beso-arco.jpg" alt="Beso frente al portón colonial"></div>
+    <div class="neg" data-full="/photos/slideshow-beso-plaza.jpg"><span class="frame-no">05</span><img src="/photos/slideshow-beso-plaza.jpg" alt="En la plaza"></div>
+    <div class="neg" data-full="/photos/slideshow-caminando.jpg"><span class="frame-no">06</span><img src="/photos/slideshow-caminando.jpg" alt="Caminando juntos"></div>
+  </div>
+  <p class="strip-hint">Desliza para ver el rollo completo — toca una foto para ampliar</p>
+</section>
+
+<div id="lightbox">
+  <div id="lightbox-close"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M18 6L6 18"/></svg></div>
+  <img id="lightbox-img" src="" alt="">
+</div>
+
+<section class="section" id="rsvp">
+  <div class="wrap">
+    <p class="kicker">Confirmación</p>
+    <h2 class="h2 reveal">Confirma tu asistencia</h2>
+
+    <div id="form-loading" class="coupon reveal">
+      <p style="opacity:.6;">Cargando tu invitación…</p>
+    </div>
+
+    <div id="form-no-token" class="coupon reveal" style="display:none;">
+      <h3>Tu invitación</h3>
+      <p>Ingresa el código que recibiste</p>
+      <div class="form-wrap">
+        <div class="fgroup">
+          <label>Código de invitación</label>
+          <input type="text" id="manual-code" placeholder="Pega tu código aquí…" autocomplete="off" autocorrect="off" spellcheck="false">
+        </div>
+        <button class="btn" onclick="loadByCode()">Buscar mi invitación</button>
+        <p id="code-error" style="display:none;">Código no encontrado. Verifica el link de tu invitación.</p>
+      </div>
+    </div>
+
+    <div id="form-wrap-state" class="coupon reveal" style="display:none;">
+      <h3>¿Nos acompañas?</h3>
+      <div class="form-wrap">
+        <div class="fgroup">
+          <label>Invitación para</label>
+          <div id="guest-name-display" class="guest-name-display">—</div>
+        </div>
+        <p class="adults-note">✦ &nbsp;Aunque adoramos a los pequeños, nuestra boda será un evento exclusivamente para adultos.</p>
+        <div class="fgroup">
+          <label>¿Asistirás?</label>
+          <div class="radio-row">
+            <div class="ropt" id="ryes" onclick="selectAttend('si')">Sí, asistiré</div>
+            <div class="ropt" id="rno" onclick="selectAttend('no')">No podré ir</div>
+          </div>
+        </div>
+        <div id="comp-sec" style="display:none;"></div>
+        <button class="btn" onclick="submitForm()">Enviar confirmación</button>
+        <p id="submit-error" style="display:none;"></p>
+      </div>
+    </div>
+
+    <div id="form-already" class="coupon reveal" style="display:none;">
+      <h3>¡Gracias por reservar<br>esta fecha con nosotros!</h3>
+      <p id="already-msg"></p>
+      <p>Nos llena de alegría saber que nos acompañarás. Muy pronto compartiremos contigo todos los detalles de nuestra celebración.</p>
+      <p class="thanks-date">Gian &amp; Alissen · 12 · 02 · 2027</p>
+      <div class="cal-section" id="already-cal" style="display:none;">
+        <p class="cal-label">Guarda la fecha en tu calendario</p>
+        <button class="cal-btn" onclick="smartAddCalendar()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+          Agregar a mi calendario
+        </button>
+      </div>
+    </div>
+
+    <div id="decline-wrap" class="coupon reveal" style="display:none;">
+      <h3>Gracias por informarnos.</h3>
+      <p>Aunque extrañaremos tu presencia, comprendemos que pueden surgir compromisos que impidan acompañarnos. Te enviamos un fuerte abrazo.</p>
+      <p class="thanks-date">Gian &amp; Alissen · 12 · 02 · 2027</p>
+    </div>
+
+    <div id="success-wrap" class="coupon reveal" style="display:none;">
+      <h3>¡Gracias por reservar<br>esta fecha con nosotros!</h3>
+      <p>Nos llena de alegría saber que nos acompañarás. Muy pronto compartiremos contigo todos los detalles de nuestra celebración.</p>
+      <p class="thanks-date">Gian &amp; Alissen · 12 · 02 · 2027</p>
+      <div class="cal-section">
+        <p class="cal-label">Guarda la fecha en tu calendario</p>
+        <button class="cal-btn" onclick="smartAddCalendar()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+          Agregar a mi calendario
+        </button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="fmark">Gian &amp; Alissen</div>
+  <div class="fdate">12 · 02 · 2027 — Antigua Guatemala</div>
+</footer>
+
+<div id="audio-fab" title="Música">
+  <div class="waves off" id="waves"><span></span><span></span><span></span><span></span></div>
+</div>
+<audio id="audio" loop preload="auto"><source src="/audio/cancion.mp3" type="audio/mpeg"></audio>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script>
+(function(){
+  var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  var audio = document.getElementById('audio');
+  var waves = document.getElementById('waves');
+  var playing = false;
+  var audioTried = false;
+
+  function tryStartAudio(){
+    if(audioTried) return;
+    audioTried = true;
+    audio.play().then(function(){ waves.classList.remove('off'); playing = true; }).catch(function(){});
+  }
+
+  /* ─── ENVELOPE SCROLL SCENE ─── */
+  var scene = document.getElementById('envelope-scene');
+  var closedPhoto = document.getElementById('env-closed-photo');
+  var wrap = scene ? scene.querySelector('.env-photo-wrap') : null;
+
+  function clamp(v, a, b){ return Math.max(a, Math.min(b, v)); }
+  function smoothstep(v, lo, hi){ var t = clamp((v - lo) / (hi - lo), 0, 1); return t * t * (3 - 2 * t); }
+
+  var ticking = false;
+  function updateScene(){
+    ticking = false;
+    if(!scene || !closedPhoto || reduced) return;
+    var rect = scene.getBoundingClientRect();
+    var total = scene.offsetHeight - window.innerHeight;
+    var scrolled = -rect.top;
+    var p = clamp(total > 0 ? scrolled / total : 0, 0, 1);
+
+    if(p > 0.02) tryStartAudio();
+
+    var reveal = smoothstep(p, 0.06, 0.6) * 122 - 22;
+    var edgeSoft = reveal + 22;
+    var maskCss = 'linear-gradient(to bottom, transparent ' + reveal.toFixed(1) + '%, #000 ' + edgeSoft.toFixed(1) + '%)';
+    closedPhoto.style.webkitMaskImage = maskCss;
+    closedPhoto.style.maskImage = maskCss;
+
+    var exitFade = 1 - smoothstep(p, 0.68, 0.98);
+    var scale = 1 + p * 0.06;
+    var lift = smoothstep(p, 0.68, 1) * -30;
+    wrap.style.opacity = exitFade;
+    wrap.style.transform = 'scale(' + scale.toFixed(3) + ') translateY(' + lift.toFixed(1) + 'px)';
+
+    scene.classList.toggle('done', p > 0.05);
+  }
+
+  function onScroll(){
+    if(!ticking){ ticking = true; requestAnimationFrame(updateScene); }
+  }
+  window.addEventListener('scroll', onScroll, { passive:true });
+  updateScene();
+
+  /* ─── REVEAL ON SCROLL ─── */
+  var reveals = document.querySelectorAll('.reveal');
+  var io = new IntersectionObserver(function(entries){
+    entries.forEach(function(e){ if(e.isIntersecting) e.target.classList.add('visible'); });
+  }, { threshold:0.18 });
+  reveals.forEach(function(r){ io.observe(r); });
+
+  /* ─── GALLERY LIGHTBOX ─── */
+  var negs = document.querySelectorAll('.neg');
+  var lightbox = document.getElementById('lightbox');
+  var lbImg = document.getElementById('lightbox-img');
+  negs.forEach(function(n){
+    n.addEventListener('click', function(){
+      lbImg.src = n.getAttribute('data-full');
+      lightbox.classList.add('open');
+    });
+  });
+  document.getElementById('lightbox-close').addEventListener('click', function(){ lightbox.classList.remove('open'); });
+  lightbox.addEventListener('click', function(e){ if(e.target === lightbox) lightbox.classList.remove('open'); });
+
+  /* ─── AUDIO FAB ─── */
+  document.getElementById('audio-fab').addEventListener('click', function(){
+    if(playing){ audio.pause(); waves.classList.add('off'); playing = false; }
+    else{ audio.play().then(function(){ waves.classList.remove('off'); playing = true; }).catch(function(){}); }
+  });
+
+  /* ─── FIREBASE CONFIG (same project as el save the date) ─── */
+  var FIREBASE_CONFIG = {
+    apiKey:            "AIzaSyBM8idRad2Pn15vpIMysjeD---yyek79KE",
+    authDomain:        "boda-gian-y-alissen.firebaseapp.com",
+    projectId:         "boda-gian-y-alissen",
+    storageBucket:     "boda-gian-y-alissen.firebasestorage.app",
+    messagingSenderId: "381056607526",
+    appId:             "1:381056607526:web:57490a77060f3105dbcde7"
+  };
+  firebase.initializeApp(FIREBASE_CONFIG);
+  var db = firebase.firestore();
+  db.enablePersistence().catch(function(){});
+
+  var guestData = null;
+  var guestId   = null;
+  var attendVal = '';
+
+  function showState(id){
+    ['form-loading','form-no-token','form-wrap-state','form-already','success-wrap','decline-wrap'].forEach(function(d){
+      var el = document.getElementById(d);
+      if(el) el.style.display = (d === id) ? 'block' : 'none';
+    });
+  }
+
+  function fetchGuest(id){
+    return db.collection('guests').doc(id).get().then(function(doc){
+      if(!doc.exists) return false;
+      guestData = doc.data();
+      guestId   = id;
+      return true;
+    }).catch(function(){ return false; });
+  }
+
+  function buildCompanionSlots(){
+    var sec = document.getElementById('comp-sec');
+    var max = (guestData && guestData.maxAcompanantes) || 0;
+    sec.style.display = 'none';
+    if(max === 0){ sec.innerHTML = ''; return; }
+    var html = '<div class="fgroup companion-extra">';
+    html += '<label>Acompañante' + (max > 1 ? 's' : '') + ' (hasta ' + max + ')</label>';
+    for(var i = 1; i <= max; i++){
+      html += '<div class="comp-slot">';
+      html += '<label>Acompañante ' + i + '</label>';
+      html += '<input type="text" id="comp-' + i + '" placeholder="Nombre completo…" autocomplete="off">';
+      html += '</div>';
+    }
+    html += '</div>';
+    sec.innerHTML = html;
+  }
+
+  function renderForm(){
+    document.getElementById('guest-name-display').textContent = guestData.nombre || '—';
+    buildCompanionSlots();
+    showState('form-wrap-state');
+  }
+
+  function renderAlreadyConfirmed(){
+    var msg = guestData.asistira
+      ? '¡Confirmaste que asistirás!'
+      : 'Registraste que no podrás asistir.';
+    if(guestData.asistira && guestData.acompanantes && guestData.acompanantes.length > 0){
+      msg += '<br><span style="font-size:13px;color:var(--olive);">Acompañantes: ' + guestData.acompanantes.join(', ') + '</span>';
+    }
+    document.getElementById('already-msg').innerHTML = msg;
+    var alreadyCal = document.getElementById('already-cal');
+    if(alreadyCal) alreadyCal.style.display = guestData.asistira ? '' : 'none';
+    showState('form-already');
+  }
+
+  window.selectAttend = function(v){
+    attendVal = v;
+    document.getElementById('ryes').classList.toggle('sel', v === 'si');
+    document.getElementById('rno').classList.toggle('sel', v === 'no');
+    var compSec = document.getElementById('comp-sec');
+    var max = (guestData && guestData.maxAcompanantes) || 0;
+    if(compSec) compSec.style.display = (v === 'si' && max > 0) ? '' : 'none';
+  };
+
+  window.submitForm = function(){
+    if(!attendVal){
+      var errEl = document.getElementById('submit-error');
+      errEl.textContent = 'Por favor indica si asistirás.';
+      errEl.style.display = '';
+      return;
+    }
+    var max = (guestData && guestData.maxAcompanantes) || 0;
+    var acompanantes = [];
+    if(attendVal === 'si'){
+      for(var i = 1; i <= max; i++){
+        var input = document.getElementById('comp-' + i);
+        if(input && input.value.trim()) acompanantes.push(input.value.trim());
+      }
+    }
+    var btn = document.querySelector('#form-wrap-state .btn');
+    btn.disabled = true;
+    btn.textContent = 'Enviando…';
+    db.collection('guests').doc(guestId).update({
+      confirmado:   true,
+      asistira:     attendVal === 'si',
+      acompanantes: acompanantes,
+      confirmadoEn: firebase.firestore.FieldValue.serverTimestamp()
+    }).then(function(){
+      showState(attendVal === 'si' ? 'success-wrap' : 'decline-wrap');
+    }).catch(function(){
+      btn.disabled = false;
+      btn.textContent = 'Enviar confirmación';
+      var errEl = document.getElementById('submit-error');
+      errEl.textContent = 'Error al guardar. Por favor intenta de nuevo.';
+      errEl.style.display = '';
+    });
+  };
+
+  window.loadByCode = function(){
+    var code = document.getElementById('manual-code').value.trim();
+    if(!code) return;
+    var errEl = document.getElementById('code-error');
+    errEl.style.display = 'none';
+    fetchGuest(code).then(function(found){
+      if(!found){ errEl.style.display = ''; return; }
+      guestData.confirmado ? renderAlreadyConfirmed() : renderForm();
+    });
+  };
+
+  /* ─── CALENDARIO ─── */
+  window.smartAddCalendar = function(){
+    var ua = navigator.userAgent || '';
+    var isIOS = /iPad|iPhone|iPod/.test(ua) && !window.MSStream;
+    if(isIOS){
+      var ics = [
+        'BEGIN:VCALENDAR',
+        'VERSION:2.0',
+        'PRODID:-//Boda Gian & Alissen//ES',
+        'BEGIN:VEVENT',
+        'UID:boda-gian-alissen-20270212@boda-gian-y-alissen',
+        'DTSTART:20270212T080000',
+        'DTEND:20270212T230000',
+        'SUMMARY:Boda de Gian & Alissen',
+        'LOCATION:Antigua Guatemala',
+        'DESCRIPTION:¡Nos casamos! Reserva esta fecha especial.',
+        'END:VEVENT',
+        'END:VCALENDAR'
+      ].join('\r\n');
+      var blob = new Blob([ics], { type: 'text/calendar;charset=utf-8' });
+      var url  = URL.createObjectURL(blob);
+      var a    = document.createElement('a');
+      a.href = url; a.download = 'boda-gian-alissen.ics';
+      document.body.appendChild(a); a.click();
+      document.body.removeChild(a); URL.revokeObjectURL(url);
+    } else {
+      var gurl = 'https://calendar.google.com/calendar/render?action=TEMPLATE'
+        + '&text=Boda+de+Gian+%26+Alissen'
+        + '&dates=20270212T080000%2F20270212T230000'
+        + '&details=%C2%A1Nos+casamos%21+Reserva+esta+fecha+especial.'
+        + '&location=Antigua+Guatemala';
+      window.open(gurl, '_blank', 'noopener');
+    }
+  };
+
+  (function init(){
+    var inv = new URLSearchParams(location.search).get('inv');
+    if(!inv){ showState('form-no-token'); return; }
+    fetchGuest(inv).then(function(found){
+      if(!found){
+        showState('form-no-token');
+        document.getElementById('code-error').style.display = '';
+        return;
+      }
+      guestData.confirmado ? renderAlreadyConfirmed() : renderForm();
+    });
+  })();
+})();
+</script>
+
+</body>
+</html>
