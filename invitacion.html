@@ -51,13 +51,26 @@ body{
 .env-photo-wrap{
   position:relative; width:min(560px,90vw); aspect-ratio:4/3;
   will-change:transform, opacity;
+  perspective:1500px;
 }
 .env-photo{
   position:absolute; inset:0; width:100%; height:100%; object-fit:cover; border-radius:2px;
   box-shadow:0 30px 70px -20px rgba(30,20,8,0.45);
 }
-.env-photo.open{ z-index:1; }
-.env-photo.closed{ z-index:2; -webkit-mask-image:linear-gradient(#000,#000); mask-image:linear-gradient(#000,#000); }
+.hinge-shadow{
+  position:absolute; left:0; right:0; top:48%; height:26%; z-index:4; pointer-events:none;
+  background:linear-gradient(to bottom, rgba(20,12,4,.55) 0%, rgba(20,12,4,0) 100%);
+  opacity:0;
+}
+.flap-3d{
+  position:absolute; top:0; left:0; width:100%; height:50%;
+  clip-path:polygon(0 0,100% 0,50% 100%); z-index:5;
+  transform-origin:50% 0%; transform-style:preserve-3d;
+  backface-visibility:hidden;
+  box-shadow:0 24px 30px -18px rgba(20,12,4,.4);
+}
+.flap-3d img{ position:absolute; top:0; left:0; width:100%; height:100%; object-fit:cover; border-radius:2px 2px 0 0; backface-visibility:hidden; }
+.flap-shade{ position:absolute; inset:0; background:#000; opacity:0; pointer-events:none; backface-visibility:hidden; }
 .scroll-hint{
   position:absolute; bottom:9%; left:50%; transform:translateX(-50%);
   font-size:10px; letter-spacing:4px; text-transform:uppercase; color:#5c4a2c; opacity:.8;
@@ -69,8 +82,8 @@ body{
 @media (prefers-reduced-motion: reduce){
   #envelope-scene{ height:auto; }
   #envelope-stage{ position:relative; height:auto; padding:70px 0; }
-  .env-photo.closed{ display:none; }
-  .env-photo.open{ position:relative; opacity:1; }
+  .flap-3d{ display:none; }
+  .hinge-shadow{ display:none; }
   .scroll-hint{ display:none; }
 }
 
@@ -173,8 +186,12 @@ footer .fdate{ margin-top:8px; font-size:10.5px; letter-spacing:3px; color:var(-
 <div id="envelope-scene">
   <div id="envelope-stage">
     <div class="env-photo-wrap">
-      <img class="env-photo open" id="env-open-photo" src="/photos/sobre-abierto.jpg" alt="Sobre abierto con la carta a la vista">
-      <img class="env-photo closed" id="env-closed-photo" src="/photos/sobre-cerrado.jpg" alt="Sobre de kraft cerrado con sello de cera dorado">
+      <img class="env-photo" src="/photos/sobre-abierto.jpg" alt="Sobre abierto con la carta a la vista">
+      <div class="hinge-shadow" id="hingeShadow"></div>
+      <div class="flap-3d" id="flap3d">
+        <img src="/photos/sobre-solapa.jpg" alt="Solapa del sobre">
+        <div class="flap-shade" id="flapShade"></div>
+      </div>
     </div>
     <p class="scroll-hint"><span>Desliza para abrir</span><span class="stem"></span></p>
   </div>
@@ -367,10 +384,12 @@ footer .fdate{ margin-top:8px; font-size:10.5px; letter-spacing:3px; color:var(-
     audio.play().then(function(){ waves.classList.remove('off'); playing = true; }).catch(function(){});
   }
 
-  /* ─── ENVELOPE SCROLL SCENE ─── */
+  /* ─── ENVELOPE SCROLL SCENE — 3D flap ─── */
   var scene = document.getElementById('envelope-scene');
-  var closedPhoto = document.getElementById('env-closed-photo');
   var wrap = scene ? scene.querySelector('.env-photo-wrap') : null;
+  var flap = document.getElementById('flap3d');
+  var flapShade = document.getElementById('flapShade');
+  var hingeShadow = document.getElementById('hingeShadow');
 
   function clamp(v, a, b){ return Math.max(a, Math.min(b, v)); }
   function smoothstep(v, lo, hi){ var t = clamp((v - lo) / (hi - lo), 0, 1); return t * t * (3 - 2 * t); }
@@ -378,7 +397,7 @@ footer .fdate{ margin-top:8px; font-size:10.5px; letter-spacing:3px; color:var(-
   var ticking = false;
   function updateScene(){
     ticking = false;
-    if(!scene || !closedPhoto || reduced) return;
+    if(!scene || !flap || reduced) return;
     var rect = scene.getBoundingClientRect();
     var total = scene.offsetHeight - window.innerHeight;
     var scrolled = -rect.top;
@@ -386,15 +405,23 @@ footer .fdate{ margin-top:8px; font-size:10.5px; letter-spacing:3px; color:var(-
 
     if(p > 0.02) tryStartAudio();
 
-    var reveal = smoothstep(p, 0.06, 0.6) * 122 - 22;
-    var edgeSoft = reveal + 22;
-    var maskCss = 'linear-gradient(to bottom, transparent ' + reveal.toFixed(1) + '%, #000 ' + edgeSoft.toFixed(1) + '%)';
-    closedPhoto.style.webkitMaskImage = maskCss;
-    closedPhoto.style.maskImage = maskCss;
+    /* The flap swings open like real paper — a small overshoot past fully
+       open, then eases back to rest, instead of stopping dead. */
+    var swing  = smoothstep(p, 0.08, 0.34) * -182;
+    var settle = smoothstep(p, 0.34, 0.48) * 12;
+    var rot = swing + settle;
+    flap.style.transform = 'rotateX(' + rot.toFixed(1) + 'deg)';
 
-    var exitFade = 1 - smoothstep(p, 0.68, 0.98);
+    /* It darkens as it turns away from the light, and casts a brief shadow
+       on the letter right at the hinge as the gap opens. */
+    var shade = clamp(Math.abs(rot) / 95, 0, 1) * 0.45;
+    flapShade.style.opacity = shade.toFixed(2);
+    var hinge = smoothstep(p, 0.08, 0.20) * (1 - smoothstep(p, 0.30, 0.50));
+    hingeShadow.style.opacity = hinge.toFixed(2);
+
+    var exitFade = 1 - smoothstep(p, 0.86, 0.98);
     var scale = 1 + p * 0.06;
-    var lift = smoothstep(p, 0.68, 1) * -30;
+    var lift = smoothstep(p, 0.86, 1) * -30;
     wrap.style.opacity = exitFade;
     wrap.style.transform = 'scale(' + scale.toFixed(3) + ') translateY(' + lift.toFixed(1) + 'px)';
 
