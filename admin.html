@@ -323,7 +323,8 @@ tbody td {
       <span>PANEL DE ADMINISTRACIÓN · 12 · 02 · 2027</span>
     </div>
     <div style="display:flex;gap:10px;flex-wrap:wrap;">
-      <button class="action-btn green" onclick="toggleAddForm()">+ Agregar invitado</button>
+      <button class="action-btn green" onclick="openAddForm('add')">+ Agregar invitado</button>
+      <button class="action-btn green" onclick="openAddForm('generate')">✉️ Generar invitación</button>
       <button class="action-btn green" onclick="initGuestList()" id="init-btn">Inicializar lista base</button>
       <button class="action-btn" onclick="exportCSV()">Exportar CSV</button>
     </div>
@@ -337,11 +338,12 @@ tbody td {
       <div class="stat-card"><div class="num" id="st-total-attending">—</div><div class="lbl">Total asistentes</div></div>
       <div class="stat-card"><div class="num" id="st-pending">—</div><div class="lbl">Pendientes</div></div>
       <div class="stat-card"><div class="num" id="st-no">—</div><div class="lbl">No asisten</div></div>
+      <div class="stat-card"><div class="num" id="st-invited">—</div><div class="lbl">Invitación enviada</div></div>
     </div>
 
     <!-- Add form -->
     <div class="add-form" id="add-form">
-      <h3>Agregar invitado</h3>
+      <h3 id="add-form-title">Agregar invitado</h3>
       <div class="add-form-row">
         <div class="fg">
           <label>Nombre completo</label>
@@ -356,9 +358,10 @@ tbody td {
             <option value="3">3 acompañantes</option>
           </select>
         </div>
-        <button class="action-btn green" onclick="addGuest()" style="padding:10px 20px;height:42px;">Guardar</button>
+        <button class="action-btn green" onclick="saveNewGuest()" id="add-form-save-btn" style="padding:10px 20px;height:42px;">Guardar</button>
         <button class="action-btn" onclick="toggleAddForm()" style="padding:10px 20px;height:42px;">Cancelar</button>
       </div>
+      <p id="add-form-result" style="display:none;margin-top:14px;font-size:12.5px;color:var(--green-pale);line-height:1.6;"></p>
     </div>
 
     <!-- Filters + actions -->
@@ -368,6 +371,8 @@ tbody td {
       <button class="filter-btn" onclick="setFilter('attending',this)">Asistirán</button>
       <button class="filter-btn" onclick="setFilter('pending',this)">Pendientes</button>
       <button class="filter-btn" onclick="setFilter('no',this)">No asisten</button>
+      <button class="filter-btn" onclick="setFilter('invited',this)">Invitación enviada</button>
+      <button class="filter-btn" onclick="setFilter('notInvited',this)">Sin invitación</button>
     </div>
 
     <!-- Table -->
@@ -381,11 +386,12 @@ tbody td {
             <th>Estado</th>
             <th>Acompañantes registrados</th>
             <th>Fecha confirmación</th>
+            <th>Invitación</th>
             <th>Acciones</th>
           </tr>
         </thead>
         <tbody id="table-body">
-          <tr><td colspan="7" class="msg">Cargando…</td></tr>
+          <tr><td colspan="8" class="msg">Cargando…</td></tr>
         </tbody>
       </table>
     </div>
@@ -494,7 +500,7 @@ function startApp() {
   } catch(e) {
     console.error('Firebase init error:', e);
     document.getElementById('table-body').innerHTML =
-      `<tr><td colspan="7" class="msg" style="color:#e07070;">Error al inicializar Firebase:<br><strong>${e.message}</strong><br>Revisa la API key y la configuración.</td></tr>`;
+      `<tr><td colspan="8" class="msg" style="color:#e07070;">Error al inicializar Firebase:<br><strong>${e.message}</strong><br>Revisa la API key y la configuración.</td></tr>`;
   }
 }
 
@@ -502,7 +508,7 @@ function startApp() {
 function loadGuests() {
   const hangTimeout = setTimeout(() => {
     document.getElementById('table-body').innerHTML =
-      '<tr><td colspan="7" class="msg" style="color:#e07070;">Sin respuesta de Firebase después de 12 segundos.<br>Posible causa: API key inválida o Firestore no habilitado.<br>Abre la consola del navegador (F12) para más detalles.</td></tr>';
+      '<tr><td colspan="8" class="msg" style="color:#e07070;">Sin respuesta de Firebase después de 12 segundos.<br>Posible causa: API key inválida o Firestore no habilitado.<br>Abre la consola del navegador (F12) para más detalles.</td></tr>';
   }, 12000);
 
   db.collection('guests').onSnapshot(snap => {
@@ -517,7 +523,7 @@ function loadGuests() {
     clearTimeout(hangTimeout);
     console.error('Firestore read error:', err);
     document.getElementById('table-body').innerHTML =
-      `<tr><td colspan="7" class="msg" style="color:#e07070;">Error Firestore: <strong>${err.code}</strong><br>${err.message}</td></tr>`;
+      `<tr><td colspan="8" class="msg" style="color:#e07070;">Error Firestore: <strong>${err.code}</strong><br>${err.message}</td></tr>`;
   });
 }
 
@@ -529,11 +535,13 @@ function updateStats() {
   const no         = allGuests.filter(g => g.confirmado && !g.asistira);
   const companions     = attending.reduce((s, g) => s + (g.acompanantes ? g.acompanantes.length : 0), 0);
   const totalAttending = attending.length + companions;
+  const invited        = allGuests.filter(g => g.invitacionEnviada);
   document.getElementById('st-total').textContent          = allGuests.length;
   document.getElementById('st-confirmed').textContent      = confirmed.length;
   document.getElementById('st-total-attending').textContent= totalAttending;
   document.getElementById('st-pending').textContent        = pending.length;
   document.getElementById('st-no').textContent             = no.length;
+  document.getElementById('st-invited').textContent        = invited.length;
 }
 
 /* ─── FILTER ─── */
@@ -550,6 +558,8 @@ function filteredGuests() {
     case 'attending': return allGuests.filter(g => g.asistira);
     case 'pending':   return allGuests.filter(g => !g.confirmado);
     case 'no':        return allGuests.filter(g => g.confirmado && !g.asistira);
+    case 'invited':   return allGuests.filter(g => g.invitacionEnviada);
+    case 'notInvited':return allGuests.filter(g => !g.invitacionEnviada);
     default:          return allGuests;
   }
 }
@@ -559,7 +569,7 @@ function renderTable() {
   const tbody = document.getElementById('table-body');
   const list  = filteredGuests();
   if (list.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="7" class="msg">Sin resultados</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="8" class="msg">Sin resultados</td></tr>';
     return;
   }
   tbody.innerHTML = list.map((g, i) => {
@@ -576,7 +586,9 @@ function renderTable() {
       ? (g.confirmadoEn.toDate ? g.confirmadoEn.toDate().toLocaleString('es-GT') : '—')
       : '—';
 
-    const invLink = SITE_URL + '/index.html?inv=' + g.id;
+    const invBadge = g.invitacionEnviada
+      ? '<span class="badge badge-confirmed">Enviada ✓</span>'
+      : '<span class="badge badge-pending">Pendiente</span>';
 
     return `<tr id="row-${g.id}">
       <td style="color:var(--green-pale);font-size: 12.5px;">${i + 1}</td>
@@ -585,9 +597,11 @@ function renderTable() {
       <td>${badge}</td>
       <td>${comps}</td>
       <td style="font-size: 12.5px;color:var(--green-pale);">${fecha}</td>
+      <td>${invBadge}</td>
       <td>
         <div class="row-actions">
-          <button class="icon-btn copy" title="Copiar link" onclick="copyLink('${g.id}')">🔗</button>
+          <button class="icon-btn copy" title="Enviar invitación oficial" onclick="sendInvitation('${g.id}')">✉️</button>
+          <button class="icon-btn copy" title="Copiar link save the date" onclick="copyLink('${g.id}')">🔗</button>
           <button class="icon-btn" title="Editar" onclick="startEdit('${g.id}')">✏️</button>
           <button class="icon-btn del" title="Eliminar" onclick="deleteGuest('${g.id}', '${esc(g.nombre)}')">🗑️</button>
         </div>
@@ -619,6 +633,36 @@ Gian & Alissen 🤍`;
   navigator.clipboard.writeText(msg).then(() => toast('Mensaje copiado ✓'));
 }
 
+/* ─── ENVIAR INVITACIÓN OFICIAL ─── */
+function invitationMessage(nombre, id) {
+  const link = SITE_URL + '/invitacion.html?inv=' + id;
+  return `¡Hola ${nombre}! 🤍
+
+Ya está lista nuestra invitación oficial ✨ con todos los detalles de la boda.
+
+👉 ${link}
+
+Con cariño,
+Gian & Alissen 🤍`;
+}
+
+async function sendInvitation(id) {
+  const g      = allGuests.find(x => x.id === id);
+  const nombre = g ? g.nombre : 'Invitado';
+  const msg    = invitationMessage(nombre, id);
+  let copied = true;
+  try { await navigator.clipboard.writeText(msg); } catch(e) { copied = false; }
+  try {
+    await db.collection('guests').doc(id).update({
+      invitacionEnviada:   true,
+      invitacionEnviadaEn: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    toast(copied ? 'Invitación copiada y marcada como enviada ✓' : 'Marcada como enviada (no se pudo copiar el mensaje)');
+  } catch(e) {
+    toast('Error al marcar la invitación como enviada');
+  }
+}
+
 /* ─── INLINE EDIT ─── */
 function startEdit(id) {
   const g = allGuests.find(x => x.id === id);
@@ -635,7 +679,7 @@ function startEdit(id) {
         <option value="3" ${g.maxAcompanantes===3?'selected':''}>3</option>
       </select>
     </td>
-    <td colspan="3" style="color:var(--green-pale);font-size: 12.5px;">Editando…</td>
+    <td colspan="4" style="color:var(--green-pale);font-size: 12.5px;">Editando…</td>
     <td>
       <div class="row-actions">
         <button class="icon-btn copy" onclick="saveEdit('${id}')">💾 Guardar</button>
@@ -667,29 +711,55 @@ async function deleteGuest(id, nombre) {
   } catch(e) { toast('Error al eliminar'); }
 }
 
-/* ─── ADD GUEST ─── */
-function toggleAddForm() {
-  const f = document.getElementById('add-form');
-  f.classList.toggle('open');
+/* ─── ADD GUEST / GENERAR INVITACIÓN ─── */
+let addFormMode = 'add';
+
+function openAddForm(mode) {
+  addFormMode = mode;
+  document.getElementById('add-form-title').textContent =
+    mode === 'generate' ? 'Generar invitación para nuevo invitado' : 'Agregar invitado';
+  document.getElementById('add-form-save-btn').textContent =
+    mode === 'generate' ? 'Generar y copiar' : 'Guardar';
+  document.getElementById('add-form-result').style.display = 'none';
+  document.getElementById('add-form').classList.add('open');
+  document.getElementById('new-name').focus();
 }
 
-async function addGuest() {
+function toggleAddForm() {
+  document.getElementById('add-form').classList.remove('open');
+}
+
+async function saveNewGuest() {
   const nombre          = document.getElementById('new-name').value.trim();
   const maxAcompanantes = parseInt(document.getElementById('new-max').value);
   if (!nombre) { toast('Ingresa un nombre'); return; }
+  const generate = addFormMode === 'generate';
   try {
-    await db.collection('guests').add({
+    const ref = await db.collection('guests').add({
       nombre,
       maxAcompanantes,
       confirmado:   false,
       asistira:     null,
       acompanantes: [],
-      confirmadoEn: null
+      confirmadoEn: null,
+      invitacionEnviada:   generate,
+      invitacionEnviadaEn: generate ? firebase.firestore.FieldValue.serverTimestamp() : null
     });
     document.getElementById('new-name').value = '';
     document.getElementById('new-max').value  = '1';
-    document.getElementById('add-form').classList.remove('open');
-    toast('Invitado agregado ✓');
+    if (generate) {
+      const msg = invitationMessage(nombre, ref.id);
+      let copied = true;
+      try { await navigator.clipboard.writeText(msg); } catch(e) { copied = false; }
+      const result = document.getElementById('add-form-result');
+      result.style.display = 'block';
+      result.innerHTML = (copied ? 'Invitación copiada al portapapeles' : 'No se pudo copiar automáticamente, cópiala manualmente') +
+        ' — pégala en WhatsApp:<br>' + SITE_URL + '/invitacion.html?inv=' + ref.id;
+      toast(copied ? 'Invitado creado e invitación copiada ✓' : 'Invitado creado ✓ (copia el link manualmente)');
+    } else {
+      document.getElementById('add-form').classList.remove('open');
+      toast('Invitado agregado ✓');
+    }
   } catch(e) { console.error('Add guest error:', e); toast('Error: ' + (e.code || e.message || 'desconocido')); }
 }
 
@@ -726,14 +796,15 @@ async function initGuestList() {
 
 /* ─── EXPORT CSV ─── */
 function exportCSV() {
-  const header = ['Nombre','Acompañantes permitidos','Estado','Asistirá','Acompañantes registrados','Fecha confirmación','Link invitación'];
+  const header = ['Nombre','Acompañantes permitidos','Estado','Asistirá','Acompañantes registrados','Fecha confirmación','Invitación enviada','Link save the date','Link invitación oficial'];
   const rows   = allGuests.map(g => {
     const estado = !g.confirmado ? 'Pendiente' : (g.asistira ? 'Asistirá' : 'No asiste');
     const fecha  = g.confirmadoEn
       ? (g.confirmadoEn.toDate ? g.confirmadoEn.toDate().toLocaleString('es-GT') : '') : '';
-    const link   = SITE_URL + '/index.html?inv=' + g.id;
-    const comps  = (g.acompanantes || []).join(' | ');
-    return [g.nombre, g.maxAcompanantes, estado, g.asistira ? 'Sí' : (g.confirmado ? 'No' : '—'), comps, fecha, link];
+    const link    = SITE_URL + '/index.html?inv=' + g.id;
+    const linkInv = SITE_URL + '/invitacion.html?inv=' + g.id;
+    const comps   = (g.acompanantes || []).join(' | ');
+    return [g.nombre, g.maxAcompanantes, estado, g.asistira ? 'Sí' : (g.confirmado ? 'No' : '—'), comps, fecha, g.invitacionEnviada ? 'Sí' : 'No', link, linkInv];
   });
   const csv = [header, ...rows].map(r => r.map(c => '"' + String(c).replace(/"/g,'""') + '"').join(',')).join('\n');
   const blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8;' });
