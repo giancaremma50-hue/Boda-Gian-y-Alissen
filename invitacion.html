@@ -40,7 +40,7 @@ body{
 /* =====================================================
    ENVELOPE SCENE — real photographs, scroll-scrubbed reveal wipe
 ===================================================== */
-#envelope-scene{ position:relative; height:230vh; background:#e3ddce; }
+#envelope-scene{ position:relative; height:280vh; background:#e3ddce; }
 #envelope-stage{
   position:sticky; top:0; height:100vh; height:100svh; overflow:hidden;
   display:grid; place-items:center;
@@ -49,7 +49,6 @@ body{
 .env-photo-wrap{
   grid-area:1/1; position:relative; width:min(560px,90vw); aspect-ratio:1891/1263;
   will-change:transform, opacity;
-  perspective:1500px;
 }
 .letter-text{
   /* no will-change: it scales up ~5-6x during the handoff, and a promoted
@@ -68,20 +67,12 @@ body{
   position:absolute; inset:0; width:100%; height:100%; object-fit:cover; border-radius:2px;
   box-shadow:0 30px 70px -20px rgba(30,20,8,0.45);
 }
-.hinge-shadow{
-  position:absolute; left:0; right:0; top:49%; height:12%; z-index:4; pointer-events:none;
-  background:linear-gradient(to bottom, rgba(20,12,4,.7) 0%, rgba(20,12,4,0) 100%);
-  opacity:0;
-}
-.flap-3d{
-  position:absolute; top:0; left:0; width:100%; height:52.97%;
-  clip-path:polygon(0 0,100% 0,50% 100%); z-index:5;
-  transform-origin:50% 0%; transform-style:preserve-3d;
-  backface-visibility:hidden;
-  box-shadow:0 24px 30px -18px rgba(20,12,4,.4);
-}
-.flap-3d img{ position:absolute; top:0; left:0; width:100%; height:100%; object-fit:cover; border-radius:2px 2px 0 0; backface-visibility:hidden; }
-.flap-shade{ position:absolute; inset:0; background:#000; opacity:0; pointer-events:none; backface-visibility:hidden; }
+.env-photo.f1{ z-index:1; }
+.env-photo.f2{ z-index:2; opacity:0; }
+.env-photo.f3{ z-index:3; opacity:0; }
+.env-photo.f4{ z-index:4; opacity:0; }
+.env-photo.f5{ z-index:5; opacity:0; }
+.env-photo.f6{ z-index:6; opacity:0; }
 .scroll-hint{
   position:absolute; bottom:9%; left:50%; transform:translateX(-50%);
   font-size:10px; letter-spacing:4px; text-transform:uppercase; color:#5c4a2c; opacity:.8;
@@ -93,8 +84,8 @@ body{
 @media (prefers-reduced-motion: reduce){
   #envelope-scene{ height:auto; }
   #envelope-stage{ position:relative; height:auto; padding:70px 0; }
-  .flap-3d{ display:none; }
-  .hinge-shadow{ display:none; }
+  .env-photo.f1, .env-photo.f2, .env-photo.f3, .env-photo.f4, .env-photo.f5{ display:none; }
+  .env-photo.f6{ opacity:1; }
   .scroll-hint{ display:none; }
   .letter-text{ display:none; }
 }
@@ -198,12 +189,12 @@ footer .fdate{ margin-top:8px; font-size:10.5px; letter-spacing:3px; color:var(-
 <div id="envelope-scene">
   <div id="envelope-stage">
     <div class="env-photo-wrap">
-      <img class="env-photo" src="/photos/sobre-abierto.jpg" alt="Sobre abierto con la carta a la vista">
-      <div class="hinge-shadow" id="hingeShadow"></div>
-      <div class="flap-3d" id="flap3d">
-        <img src="/photos/sobre-solapa.jpg" alt="Solapa del sobre">
-        <div class="flap-shade" id="flapShade"></div>
-      </div>
+      <img class="env-photo f1" src="/photos/sobre-fb1.jpg" alt="Sobre cerrado">
+      <img class="env-photo f2" src="/photos/sobre-fb2.jpg" alt="Sello agrietándose">
+      <img class="env-photo f3" src="/photos/sobre-fb3.jpg" alt="Solapa empezando a abrir">
+      <img class="env-photo f4" src="/photos/sobre-fb4.jpg" alt="Solapa a medio abrir">
+      <img class="env-photo f5" src="/photos/sobre-fb5.jpg" alt="Solapa casi abierta">
+      <img class="env-photo f6" src="/photos/sobre-fb6.jpg" alt="Sobre abierto con la carta a la vista">
     </div>
     <div class="letter-text" id="letterText">
       <p class="letter-eyebrow">Nos casamos</p>
@@ -403,9 +394,11 @@ footer .fdate{ margin-top:8px; font-size:10.5px; letter-spacing:3px; color:var(-
   /* ─── ENVELOPE SCROLL SCENE — 3D flap ─── */
   var scene = document.getElementById('envelope-scene');
   var wrap = scene ? scene.querySelector('.env-photo-wrap') : null;
-  var flap = document.getElementById('flap3d');
-  var flapShade = document.getElementById('flapShade');
-  var hingeShadow = document.getElementById('hingeShadow');
+  var f2 = scene ? scene.querySelector('.f2') : null;
+  var f3 = scene ? scene.querySelector('.f3') : null;
+  var f4 = scene ? scene.querySelector('.f4') : null;
+  var f5 = scene ? scene.querySelector('.f5') : null;
+  var f6 = scene ? scene.querySelector('.f6') : null;
   var letterText = document.getElementById('letterText');
   var letterTitle = document.getElementById('letterTitle');
   var heroTitle = document.querySelector('.masthead-title');
@@ -441,7 +434,7 @@ footer .fdate{ margin-top:8px; font-size:10.5px; letter-spacing:3px; color:var(-
   var ticking = false;
   function updateScene(){
     ticking = false;
-    if(!scene || !flap || reduced) return;
+    if(!scene || !f6 || reduced) return;
     var rect = scene.getBoundingClientRect();
     var total = scene.offsetHeight - window.innerHeight;
     var scrolled = -rect.top;
@@ -449,32 +442,28 @@ footer .fdate{ margin-top:8px; font-size:10.5px; letter-spacing:3px; color:var(-
 
     if(p > 0.02) tryStartAudio();
 
-    /* The flap swings open like real paper — a small overshoot past fully
-       open, then eases back to rest, instead of stopping dead. */
-    var swing  = smoothstep(p, 0.08, 0.34) * -182;
-    var settle = smoothstep(p, 0.34, 0.48) * 12;
-    var rot = swing + settle;
-    flap.style.transform = 'rotateX(' + rot.toFixed(1) + 'deg)';
+    /* Six real photographs of the same envelope, each one an actual
+       instant of it opening — crossfading between them, no synthetic
+       3D, no invented shadows. Each frame already carries its own
+       real light and shadow from the shoot. */
+    f2.style.opacity = smoothstep(p, 0.05, 0.14).toFixed(2);
+    f3.style.opacity = smoothstep(p, 0.17, 0.26).toFixed(2);
+    f4.style.opacity = smoothstep(p, 0.29, 0.38).toFixed(2);
+    f5.style.opacity = smoothstep(p, 0.41, 0.50).toFixed(2);
+    f6.style.opacity = smoothstep(p, 0.53, 0.62).toFixed(2);
 
-    /* It darkens as it turns away from the light, and casts a brief shadow
-       on the letter right at the hinge as the gap opens. */
-    var shade = clamp(Math.abs(rot) / 95, 0, 1) * 0.45;
-    flapShade.style.opacity = shade.toFixed(2);
-    var hinge = smoothstep(p, 0.06, 0.13) * (1 - smoothstep(p, 0.14, 0.24));
-    hingeShadow.style.opacity = hinge.toFixed(2);
-
-    var exitFade = 1 - smoothstep(p, 0.70, 0.92);
+    var exitFade = 1 - smoothstep(p, 0.78, 0.94);
     var scale = 1 + p * 0.06;
-    var lift = smoothstep(p, 0.70, 1) * -30;
+    var lift = smoothstep(p, 0.78, 1) * -30;
     wrap.style.opacity = exitFade;
     wrap.style.transform = 'scale(' + scale.toFixed(3) + ') translateY(' + lift.toFixed(1) + 'px)';
 
-    /* The invitation text appears on the letter as it opens, then — instead
-       of just fading — flies to and grows into the real page title, so the
-       information visibly comes out of the letter rather than the scene
-       simply dissolving into unrelated content underneath. */
-    var textIn = smoothstep(p, 0.34, 0.54);
-    var handoff = smoothstep(p, 0.72, 1);
+    /* The invitation text appears on the letter once it's open, then —
+       instead of just fading — flies to and grows into the real page
+       title, so the information visibly comes out of the letter rather
+       than the scene simply dissolving into unrelated content underneath. */
+    var textIn = smoothstep(p, 0.58, 0.72);
+    var handoff = smoothstep(p, 0.82, 1);
     letterText.style.opacity = (textIn * (1 - handoff)).toFixed(2);
     if(flip){
       var tx = flip.dx * handoff, ty = flip.dy * handoff;
@@ -482,7 +471,7 @@ footer .fdate{ margin-top:8px; font-size:10.5px; letter-spacing:3px; color:var(-
       letterText.style.transform = 'translate(' + tx.toFixed(1) + 'px,' + ty.toFixed(1) + 'px) scale(' + sc.toFixed(3) + ')';
     }
 
-    scene.classList.toggle('done', p > 0.05);
+    scene.classList.toggle('done', p > 0.04);
   }
 
   function onScroll(){
