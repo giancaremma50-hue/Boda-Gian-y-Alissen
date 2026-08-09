@@ -35,6 +35,17 @@ body{
   -webkit-font-smoothing:antialiased;
 }
 
+/* =====================================================
+   FRAME — the whole site presents as a 9:16 "phone" column,
+   even on wide desktop viewports. Sections with no photo/video
+   of their own just sit on the page's flat putty background out
+   here in the margins (a blur of a flat color is that same flat
+   color, so nothing is lost); #intro-scene is the one section
+   with real imagery, so it grows its own blurred echo — see below.
+===================================================== */
+:root{ --frame-w: min(100vw, calc(100dvh * 9 / 16)); }
+#page-frame{ position:relative; width:var(--frame-w); margin:0 auto; z-index:1; background:var(--putty); }
+
 .wrap{ max-width:720px; margin:0 auto; padding:0 26px; }
 
 /* =====================================================
@@ -46,14 +57,30 @@ body{
    that's "in view" from the very first frame.
 ===================================================== */
 #intro-scene{ position:relative; height:260vh; background:var(--putty); }
-#intro-stage{
-  position:sticky; top:0; height:100vh; height:100svh; overflow:hidden; display:flex; align-items:flex-end;
+#intro-stage{ position:sticky; top:0; height:100vh; height:100svh; }
+/* Blurred echo, escaping #page-frame's width to fill the full viewport
+   behind the sharp 9:16 frame — same trick Stories/Reels use to fill
+   the sides on a wide screen instead of showing empty letterboxing. */
+#intro-blur-bg{
+  position:absolute; top:0; left:50%; width:100vw; height:100%;
+  transform:translateX(-50%); overflow:hidden; z-index:0; pointer-events:none;
+  background:var(--putty);
+}
+#intro-blur-bg .blur-layer{
+  position:absolute; inset:0; background-size:cover; background-position:center;
+  filter:blur(50px) saturate(1.1) brightness(0.8); transform:scale(1.18);
+}
+#blur-letter-bg{ z-index:2; background-image:url('/video/carta-apertura-blur.jpg'); }
+#blur-hero-bg{ z-index:1; opacity:0; background-image:url('/video/hero-loop-blur.jpg'); }
+#intro-frame{
+  position:absolute; inset:0; z-index:1; overflow:hidden;
+  display:flex; align-items:flex-end;
   background-image:url('/photos/hero-dip.jpg'); background-size:cover; background-position:center 62%;
 }
 #intro-scene.is-static{ height:auto; }
 #intro-scene.is-static #intro-stage{ position:relative; height:100vh; height:100svh; }
-#intro-scene.is-static #letter-video{ display:none; }
-#intro-scene.is-static #hero-video{ opacity:1; transform:none; }
+#intro-scene.is-static #letter-video, #intro-scene.is-static #blur-letter-bg{ display:none; }
+#intro-scene.is-static #hero-video, #intro-scene.is-static #blur-hero-bg{ opacity:1; transform:none; }
 #letter-video, #hero-video{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; display:block; }
 #letter-video{ z-index:2; background:var(--putty); }
 #hero-video{ z-index:1; opacity:0; }
@@ -73,8 +100,8 @@ body{
 @media (prefers-reduced-motion: reduce){
   #intro-scene{ height:auto; }
   #intro-stage{ position:relative; height:100vh; height:100svh; }
-  #letter-video{ display:none; }
-  #hero-video{ opacity:1; }
+  #letter-video, #blur-letter-bg{ display:none; }
+  #hero-video, #blur-hero-bg{ opacity:1; }
   .intro-reveal{ opacity:1; transform:none; transition:none; }
 }
 
@@ -159,7 +186,7 @@ footer{ padding:56px 0 90px; text-align:center; border-top:1px solid var(--rule)
 footer .fmark{ font-family:'Fraunces',serif; font-style:italic; font-size:22px; }
 footer .fdate{ margin-top:8px; font-size:10.5px; letter-spacing:3px; color:var(--olive); text-transform:uppercase; }
 
-#audio-fab{ position:fixed; bottom:22px; right:18px; z-index:200; width:44px; height:44px; border-radius:50%; border:1px solid var(--rule); background:color-mix(in srgb, var(--putty) 80%, transparent); backdrop-filter:blur(10px); display:flex; align-items:center; justify-content:center; cursor:pointer; }
+#audio-fab{ position:fixed; bottom:22px; right:calc(50vw - (var(--frame-w) / 2) + 18px); z-index:200; width:44px; height:44px; border-radius:50%; border:1px solid var(--rule); background:color-mix(in srgb, var(--putty) 80%, transparent); backdrop-filter:blur(10px); display:flex; align-items:center; justify-content:center; cursor:pointer; }
 .waves{ display:flex; align-items:center; gap:2.5px; height:15px; }
 .waves span{ width:2.5px; background:var(--cobalt); border-radius:2px; animation:wv 1.1s ease-in-out infinite; }
 .waves span:nth-child(1){ height:6px; animation-delay:0s; } .waves span:nth-child(2){ height:13px; animation-delay:.18s; }
@@ -173,15 +200,23 @@ footer .fdate{ margin-top:8px; font-size:10.5px; letter-spacing:3px; color:var(-
 </head>
 <body>
 
+<div id="page-frame">
+
 <section id="intro-scene">
   <div id="intro-stage">
-    <video id="letter-video" muted playsinline preload="auto" src="/video/carta-apertura.mp4"></video>
-    <video id="hero-video" muted playsinline loop preload="auto" src="/video/hero-loop.mp4"></video>
-    <div class="hero-overlay"></div>
-    <div class="wrap hero-content">
-      <p class="hero-eyebrow intro-reveal d1">Nos casamos</p>
-      <h1 class="masthead-title intro-reveal d2">Gian<br>&amp; Alissen</h1>
-      <p class="masthead-sub intro-reveal d3">Antigua Guatemala — 12 · 02 · 2027</p>
+    <div id="intro-blur-bg">
+      <div id="blur-letter-bg" class="blur-layer"></div>
+      <div id="blur-hero-bg" class="blur-layer"></div>
+    </div>
+    <div id="intro-frame">
+      <video id="letter-video" muted playsinline preload="auto" src="/video/carta-apertura.mp4"></video>
+      <video id="hero-video" muted playsinline loop preload="auto" src="/video/hero-loop.mp4"></video>
+      <div class="hero-overlay"></div>
+      <div class="wrap hero-content">
+        <p class="hero-eyebrow intro-reveal d1">Nos casamos</p>
+        <h1 class="masthead-title intro-reveal d2">Gian<br>&amp; Alissen</h1>
+        <p class="masthead-sub intro-reveal d3">Antigua Guatemala — 12 · 02 · 2027</p>
+      </div>
     </div>
   </div>
 </section>
@@ -349,6 +384,8 @@ footer .fdate{ margin-top:8px; font-size:10.5px; letter-spacing:3px; color:var(-
 </div>
 <audio id="audio" loop preload="auto"><source src="/audio/cancion.mp3" type="audio/mpeg"></audio>
 
+</div>
+
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 <script>
@@ -356,6 +393,8 @@ footer .fdate{ margin-top:8px; font-size:10.5px; letter-spacing:3px; color:var(-
   var scene = document.getElementById('intro-scene');
   var letterVideo = document.getElementById('letter-video');
   var heroVideo = document.getElementById('hero-video');
+  var blurLetterBg = document.getElementById('blur-letter-bg');
+  var blurHeroBg = document.getElementById('blur-hero-bg');
   var reveals = document.querySelectorAll('#intro-scene .intro-reveal');
   var reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
@@ -405,6 +444,8 @@ footer .fdate{ margin-top:8px; font-size:10.5px; letter-spacing:3px; color:var(-
         letterVideo.style.transform = 'scale(' + (1 + cross * 0.06) + ')';
         heroVideo.style.opacity = cross;
         heroVideo.style.transform = 'scale(' + (1.05 - cross * 0.05) + ')';
+        if(blurLetterBg) blurLetterBg.style.opacity = 1 - cross;
+        if(blurHeroBg) blurHeroBg.style.opacity = cross;
 
         var revealed = p >= REVEAL_AT;
         reveals.forEach(function(el){ el.classList.toggle('visible', revealed); });
