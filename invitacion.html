@@ -49,15 +49,14 @@ body{
 .wrap{ max-width:720px; margin:0 auto; padding:0 26px; }
 
 /* =====================================================
-   INTRO — envelope video (scroll-scrubbed) crossfades into
-   a real looping video of the couple, "diving into" the
-   letter. Both videos are real footage, no invented imagery.
-   Reveal of the title text is JS-driven (not IntersectionObserver
-   — see .intro-reveal), since it lives inside a sticky stage
-   that's "in view" from the very first frame.
+   INTRO — tap the closed envelope to play it opening, which
+   crossfades into a real looping video of the couple. Scroll is
+   locked until the sequence finishes, so the visitor sees it in
+   order instead of scrubbing past it. Both videos are real
+   footage, no invented imagery.
 ===================================================== */
-#intro-scene{ position:relative; height:260vh; background:var(--putty); }
-#intro-stage{ position:sticky; top:0; height:100vh; height:100svh; }
+#intro-scene{ position:relative; height:100vh; height:100dvh; background:var(--putty); overflow:hidden; }
+#intro-stage{ position:relative; width:100%; height:100%; }
 /* Blurred echo, escaping #page-frame's width to fill the full viewport
    behind the sharp 9:16 frame — same trick Stories/Reels use to fill
    the sides on a wide screen instead of showing empty letterboxing. */
@@ -69,6 +68,7 @@ body{
 #intro-blur-bg .blur-layer{
   position:absolute; inset:0; background-size:cover; background-position:center;
   filter:blur(50px) saturate(1.1) brightness(0.8); transform:scale(1.18);
+  transition:opacity .9s ease;
 }
 #blur-letter-bg{ z-index:2; background-image:url('/video/carta-apertura-blur.jpg'); }
 #blur-hero-bg{ z-index:1; opacity:0; background-image:url('/video/hero-loop-blur.jpg'); }
@@ -77,13 +77,16 @@ body{
   display:flex; align-items:flex-end;
   background-image:url('/photos/hero-dip.jpg'); background-size:cover; background-position:center 62%;
 }
-#intro-scene.is-static{ height:auto; }
-#intro-scene.is-static #intro-stage{ position:relative; height:100vh; height:100svh; }
+#letter-video, #hero-video{
+  position:absolute; inset:0; width:100%; height:100%; object-fit:cover; display:block;
+  transition:opacity .9s ease, transform .9s ease;
+}
+#letter-video{ z-index:2; background:var(--putty); }
+#hero-video{ z-index:1; opacity:0; transform:scale(1.05); }
+#intro-scene.opened #letter-video, #intro-scene.opened #blur-letter-bg{ opacity:0; transform:scale(1.06); }
+#intro-scene.opened #hero-video, #intro-scene.opened #blur-hero-bg{ opacity:1; transform:scale(1); }
 #intro-scene.is-static #letter-video, #intro-scene.is-static #blur-letter-bg{ display:none; }
 #intro-scene.is-static #hero-video, #intro-scene.is-static #blur-hero-bg{ opacity:1; transform:none; }
-#letter-video, #hero-video{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; display:block; }
-#letter-video{ z-index:2; background:var(--putty); }
-#hero-video{ z-index:1; opacity:0; }
 .hero-overlay{
   position:absolute; inset:0; z-index:3;
   background:linear-gradient(180deg, rgba(20,20,18,.18) 0%, rgba(20,20,18,.18) 40%, rgba(15,15,13,.72) 100%);
@@ -97,11 +100,28 @@ body{
 .intro-reveal.d1{ transition-delay:.08s; }
 .intro-reveal.d2{ transition-delay:.22s; }
 .intro-reveal.d3{ transition-delay:.36s; }
+
+#tap-open{
+  position:absolute; inset:0; z-index:5; width:100%; height:100%;
+  display:flex; align-items:flex-end; justify-content:center; padding-bottom:56px;
+  background:none; border:none; margin:0; cursor:pointer; -webkit-tap-highlight-color:transparent;
+  transition:opacity .4s ease;
+}
+.tap-open-pill{
+  font-family:'Archivo',sans-serif; font-size:11px; letter-spacing:4px; text-transform:uppercase; color:#f3efe4;
+  border:1px solid rgba(243,239,228,.55); border-radius:30px; padding:13px 30px;
+  backdrop-filter:blur(6px); background:rgba(20,20,18,.28);
+  animation:tapPulse 2.2s ease-in-out infinite;
+}
+@keyframes tapPulse{ 0%,100%{ opacity:.8; transform:translateY(0); } 50%{ opacity:1; transform:translateY(-5px); } }
+#intro-scene.opening #tap-open, #intro-scene.opened #tap-open, #intro-scene.is-static #tap-open{ opacity:0; pointer-events:none; }
+
+html.intro-locked, html.intro-locked body{ overflow:hidden; height:100%; }
+
 @media (prefers-reduced-motion: reduce){
-  #intro-scene{ height:auto; }
-  #intro-stage{ position:relative; height:100vh; height:100svh; }
   #letter-video, #blur-letter-bg{ display:none; }
   #hero-video, #blur-hero-bg{ opacity:1; }
+  #tap-open{ display:none; }
   .intro-reveal{ opacity:1; transform:none; transition:none; }
 }
 
@@ -217,6 +237,9 @@ footer .fdate{ margin-top:8px; font-size:10.5px; letter-spacing:3px; color:var(-
         <h1 class="masthead-title intro-reveal d2">Gian<br>&amp; Alissen</h1>
         <p class="masthead-sub intro-reveal d3">Antigua Guatemala — 12 · 02 · 2027</p>
       </div>
+      <button id="tap-open" type="button" aria-label="Toca para abrir la invitación">
+        <span class="tap-open-pill">Toca para abrir</span>
+      </button>
     </div>
   </div>
 </section>
@@ -393,16 +416,13 @@ footer .fdate{ margin-top:8px; font-size:10.5px; letter-spacing:3px; color:var(-
   var scene = document.getElementById('intro-scene');
   var letterVideo = document.getElementById('letter-video');
   var heroVideo = document.getElementById('hero-video');
-  var blurLetterBg = document.getElementById('blur-letter-bg');
-  var blurHeroBg = document.getElementById('blur-hero-bg');
-  var reveals = document.querySelectorAll('#intro-scene .intro-reveal');
+  var tapOpen = document.getElementById('tap-open');
+  var introReveals = document.querySelectorAll('#intro-scene .intro-reveal');
   var reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  function smoothstep(v, lo, hi){
-    var t = Math.max(0, Math.min(1, (v - lo) / (hi - lo)));
-    return t * t * (3 - 2 * t);
-  }
-  function showRevealsNow(){ reveals.forEach(function(el){ el.classList.add('visible'); }); }
+  function showRevealsNow(){ introReveals.forEach(function(el){ el.classList.add('visible'); }); }
+  function lockScroll(){ document.documentElement.classList.add('intro-locked'); }
+  function unlockScroll(){ document.documentElement.classList.remove('intro-locked'); }
 
   if(scene && letterVideo && heroVideo){
     heroVideo.load();
@@ -411,51 +431,43 @@ footer .fdate{ margin-top:8px; font-size:10.5px; letter-spacing:3px; color:var(-
       scene.classList.add('is-static');
       showRevealsNow();
     } else {
-      var CROSSFADE_START = 0.70, CROSSFADE_END = 0.85, REVEAL_AT = 0.88;
-      var letterReady = false, failed = false, ticking = false;
+      var letterReady = false, failed = false, opened = false, endedHandled = false;
 
-      function killLetter(){
-        if(failed) return;
-        failed = true;
+      function finishStatic(){
         scene.classList.add('is-static');
         showRevealsNow();
+        unlockScroll();
+      }
+      function killLetter(){
+        if(failed || opened) return;
+        failed = true;
+        finishStatic();
       }
 
       letterVideo.addEventListener('loadedmetadata', function(){ letterReady = true; });
       letterVideo.addEventListener('error', killLetter);
       letterVideo.load();
       setTimeout(function(){ if(!letterReady && !failed){ killLetter(); } }, 8000);
-      heroVideo.play().catch(function(){});
 
-      function update(){
-        ticking = false;
-        if(failed || !letterReady) return;
-        var vh = window.innerHeight;
-        var total = scene.offsetHeight - vh;
-        var p = total > 0 ? (-scene.getBoundingClientRect().top) / total : 0;
-        p = Math.max(0, Math.min(1, p));
-
-        var openP = Math.min(1, p / CROSSFADE_START);
-        var t = openP * letterVideo.duration;
-        if(isFinite(t)) letterVideo.currentTime = t;
-
-        var cross = smoothstep(p, CROSSFADE_START, CROSSFADE_END);
-        letterVideo.style.opacity = 1 - cross;
-        letterVideo.style.transform = 'scale(' + (1 + cross * 0.06) + ')';
-        heroVideo.style.opacity = cross;
-        heroVideo.style.transform = 'scale(' + (1.05 - cross * 0.05) + ')';
-        if(blurLetterBg) blurLetterBg.style.opacity = 1 - cross;
-        if(blurHeroBg) blurHeroBg.style.opacity = cross;
-
-        var revealed = p >= REVEAL_AT;
-        reveals.forEach(function(el){ el.classList.toggle('visible', revealed); });
+      function onLetterEnded(){
+        if(endedHandled) return;
+        endedHandled = true;
+        scene.classList.add('opened');
+        setTimeout(function(){ showRevealsNow(); unlockScroll(); }, 950);
       }
-      function onScroll(){
-        if(!ticking){ ticking = true; requestAnimationFrame(update); }
+      function openLetter(){
+        if(opened || failed) return;
+        opened = true;
+        scene.classList.add('opening');
+        tryStartAudio();
+        letterVideo.play().catch(function(){});
+        heroVideo.play().catch(function(){});
+        letterVideo.addEventListener('ended', onLetterEnded);
+        setTimeout(onLetterEnded, (letterVideo.duration ? letterVideo.duration * 1000 : 5000) + 1500);
       }
-      window.addEventListener('scroll', onScroll, { passive:true });
-      window.addEventListener('resize', onScroll, { passive:true });
-      onScroll();
+
+      lockScroll();
+      if(tapOpen) tapOpen.addEventListener('click', openLetter);
     }
   }
 
