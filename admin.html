@@ -213,6 +213,7 @@ tbody td {
 .badge-confirmed  { background: rgba(61,92,53,.4); color: var(--green-pale); }
 .badge-no         { background: rgba(192,57,43,.2); color: #e07070; }
 .badge-pending    { background: rgba(200,169,110,.15); color: var(--gold); }
+.badge-closed     { background: rgba(255,255,255,.08); color: rgba(255,255,255,.55); }
 
 .companions-list {
   font-size: 12.5px;
@@ -325,6 +326,7 @@ tbody td {
     <div style="display:flex;gap:10px;flex-wrap:wrap;">
       <button class="action-btn green" onclick="openAddForm('add')">+ Agregar invitado</button>
       <button class="action-btn green" onclick="openAddForm('generate')">✉️ Generar invitación</button>
+      <button class="action-btn" onclick="closeSaveTheDate()" id="close-btn" style="display:none;">Cerrar save the date</button>
       <button class="action-btn green" onclick="initGuestList()" id="init-btn">Inicializar lista base</button>
       <button class="action-btn" onclick="exportCSV()">Exportar CSV</button>
     </div>
@@ -337,6 +339,7 @@ tbody td {
       <div class="stat-card"><div class="num" id="st-confirmed">—</div><div class="lbl">Confirmados</div></div>
       <div class="stat-card"><div class="num" id="st-total-attending">—</div><div class="lbl">Total asistentes</div></div>
       <div class="stat-card"><div class="num" id="st-pending">—</div><div class="lbl">Pendientes</div></div>
+      <div class="stat-card"><div class="num" id="st-closed">—</div><div class="lbl">Sin respuesta</div></div>
       <div class="stat-card"><div class="num" id="st-no">—</div><div class="lbl">No asisten</div></div>
       <div class="stat-card"><div class="num" id="st-invited">—</div><div class="lbl">Invitación enviada</div></div>
     </div>
@@ -370,6 +373,7 @@ tbody td {
       <button class="filter-btn" onclick="setFilter('confirmed',this)">Confirmados</button>
       <button class="filter-btn" onclick="setFilter('attending',this)">Asistirán</button>
       <button class="filter-btn" onclick="setFilter('pending',this)">Pendientes</button>
+      <button class="filter-btn" onclick="setFilter('closed',this)">Sin respuesta</button>
       <button class="filter-btn" onclick="setFilter('no',this)">No asisten</button>
       <button class="filter-btn" onclick="setFilter('invited',this)">Invitación enviada</button>
       <button class="filter-btn" onclick="setFilter('notInvited',this)">Sin invitación</button>
@@ -527,11 +531,24 @@ function loadGuests() {
   });
 }
 
+/* ─── ESTADO SAVE THE DATE ───
+   stdCerrado es independiente de confirmado: cerrar NO responde por el invitado
+   y NO bloquea invitacion.html (la oficial lee solo confirmado/asistira). */
+function isClosed(g)  { return !g.confirmado && !!g.stdCerrado; }
+function isPending(g) { return !g.confirmado && !g.stdCerrado; }
+// Pendientes que se pueden cerrar: los que ya están en la oficial no son "sin respuesta" del save the date.
+function closable()   { return allGuests.filter(g => isPending(g) && !g.invitacionEnviada); }
+function estadoTexto(g) {
+  if (g.confirmado) return g.asistira ? 'Asistirá' : 'No asiste';
+  return g.stdCerrado ? 'Sin respuesta (cerrado)' : 'Pendiente';
+}
+
 /* ─── STATS ─── */
 function updateStats() {
   const confirmed  = allGuests.filter(g => g.confirmado);
   const attending  = allGuests.filter(g => g.asistira);
-  const pending    = allGuests.filter(g => !g.confirmado);
+  const pending    = allGuests.filter(isPending);
+  const closed     = allGuests.filter(isClosed);
   const no         = allGuests.filter(g => g.confirmado && !g.asistira);
   const companions     = attending.reduce((s, g) => s + (g.acompanantes ? g.acompanantes.length : 0), 0);
   const totalAttending = attending.length + companions;
@@ -540,7 +557,12 @@ function updateStats() {
   document.getElementById('st-confirmed').textContent      = confirmed.length;
   document.getElementById('st-total-attending').textContent= totalAttending;
   document.getElementById('st-pending').textContent        = pending.length;
+  document.getElementById('st-closed').textContent         = closed.length;
   document.getElementById('st-no').textContent             = no.length;
+  const closeBtn = document.getElementById('close-btn');
+  const n = closable().length;
+  closeBtn.style.display = n ? '' : 'none';
+  closeBtn.textContent   = 'Cerrar save the date (' + n + ')';
   document.getElementById('st-invited').textContent        = invited.length;
 }
 
@@ -556,7 +578,8 @@ function filteredGuests() {
   switch (currentFilter) {
     case 'confirmed': return allGuests.filter(g => g.confirmado);
     case 'attending': return allGuests.filter(g => g.asistira);
-    case 'pending':   return allGuests.filter(g => !g.confirmado);
+    case 'pending':   return allGuests.filter(isPending);
+    case 'closed':    return allGuests.filter(isClosed);
     case 'no':        return allGuests.filter(g => g.confirmado && !g.asistira);
     case 'invited':   return allGuests.filter(g => g.invitacionEnviada);
     case 'notInvited':return allGuests.filter(g => !g.invitacionEnviada);
@@ -574,7 +597,8 @@ function renderTable() {
   }
   tbody.innerHTML = list.map((g, i) => {
     let badge = '';
-    if (!g.confirmado)      badge = '<span class="badge badge-pending">Pendiente</span>';
+    if (isClosed(g))        badge = '<span class="badge badge-closed">Sin respuesta</span>';
+    else if (!g.confirmado) badge = '<span class="badge badge-pending">Pendiente</span>';
     else if (g.asistira)    badge = '<span class="badge badge-confirmed">Asistirá ✓</span>';
     else                    badge = '<span class="badge badge-no">No asiste</span>';
 
@@ -602,8 +626,9 @@ function renderTable() {
         <div class="row-actions">
           <button class="icon-btn copy" title="Enviar invitación oficial" onclick="sendInvitation('${g.id}')">✉️</button>
           <button class="icon-btn copy" title="Copiar link save the date" onclick="copyLink('${g.id}')">🔗</button>
+          ${isClosed(g) ? `<button class="icon-btn" title="Reabrir save the date" onclick="reopenGuest('${g.id}')">🔓</button>` : ''}
           <button class="icon-btn" title="Editar" onclick="startEdit('${g.id}')">✏️</button>
-          <button class="icon-btn del" title="Eliminar" onclick="deleteGuest('${g.id}', '${esc(g.nombre)}')">🗑️</button>
+          <button class="icon-btn del" title="Eliminar" onclick="deleteGuest('${g.id}')">🗑️</button>
         </div>
       </td>
     </tr>`;
@@ -702,8 +727,36 @@ async function saveEdit(id) {
   } catch(e) { toast('Error al guardar'); }
 }
 
+/* ─── CERRAR / REABRIR SAVE THE DATE ─── */
+async function closeSaveTheDate() {
+  const targets = closable();
+  if (!targets.length) { toast('No hay pendientes por cerrar'); return; }
+  const lista = targets.map(g => '• ' + g.nombre).join('\n');
+  if (!confirm('Cerrar el save the date para ' + targets.length + ' invitados sin respuesta:\n\n' + lista +
+      '\n\nSu link mostrará un aviso de cierre. Siguen en la lista para la invitación oficial. ' +
+      'Se puede reabrir uno por uno (🔓).')) return;
+  try {
+    const batch = db.batch();
+    targets.forEach(g => batch.update(db.collection('guests').doc(g.id), {
+      stdCerrado:   true,
+      stdCerradoEn: firebase.firestore.FieldValue.serverTimestamp()
+    }));
+    await batch.commit();
+    toast(targets.length + ' invitados cerrados ✓');
+  } catch(e) { console.error('Close error:', e); toast('Error al cerrar el save the date'); }
+}
+
+async function reopenGuest(id) {
+  try {
+    await db.collection('guests').doc(id).update({ stdCerrado: false, stdCerradoEn: null });
+    toast('Save the date reabierto ✓');
+  } catch(e) { toast('Error al reabrir'); }
+}
+
 /* ─── DELETE ─── */
-async function deleteGuest(id, nombre) {
+async function deleteGuest(id) {
+  const g = allGuests.find(x => x.id === id);
+  const nombre = g ? g.nombre : 'este invitado';
   if (!confirm('¿Eliminar a ' + nombre + '? Esta acción no se puede deshacer.')) return;
   try {
     await db.collection('guests').doc(id).delete();
@@ -798,7 +851,7 @@ async function initGuestList() {
 function exportCSV() {
   const header = ['Nombre','Acompañantes permitidos','Estado','Asistirá','Acompañantes registrados','Fecha confirmación','Invitación enviada','Link save the date','Link invitación oficial'];
   const rows   = allGuests.map(g => {
-    const estado = !g.confirmado ? 'Pendiente' : (g.asistira ? 'Asistirá' : 'No asiste');
+    const estado = estadoTexto(g);
     const fecha  = g.confirmadoEn
       ? (g.confirmadoEn.toDate ? g.confirmadoEn.toDate().toLocaleString('es-GT') : '') : '';
     const link    = SITE_URL + '/index.html?inv=' + g.id;

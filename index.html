@@ -741,14 +741,14 @@ body {
   margin-bottom: 6px;
 }
 #form-loading { text-align: center; padding: 40px 0; }
-#form-already { text-align: center; }
-#form-already .check, #success-wrap .check {
+#form-already, #form-closed { text-align: center; }
+#form-already .check, #form-closed .check, #success-wrap .check {
   display: block;
   font-size: 37.5px;
   color: var(--gold);
   margin-bottom: 16px;
 }
-#form-already h3, #success-wrap h3 {
+#form-already h3, #form-closed h3, #success-wrap h3 {
   margin-bottom: 16px;
   font-family: 'Cormorant Garamond', serif;
   font-style: italic;
@@ -757,7 +757,7 @@ body {
   color: var(--white);
   line-height: 1.35;
 }
-#form-already p, #success-wrap p {
+#form-already p, #form-closed p, #success-wrap p {
   color: var(--green-pale);
   font-size: 15.5px;
   line-height: 1.8;
@@ -894,6 +894,18 @@ body {
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
           Agregar a mi calendario
         </button>
+      </div>
+    </div>
+
+    <!-- Estado: save the date cerrado (sin respuesta) -->
+    <div id="form-closed" style="display:none;">
+      <div class="check">✦</div>
+      <h3>El período para confirmar<br>este save the date ya cerró.</h3>
+      <p>Gracias por visitarnos. Muy pronto recibirás nuestra invitación oficial con todos los detalles de la celebración.</p>
+      <div class="thanks-pyramid">
+        <p class="thanks-names">Con cariño,</p>
+        <p class="thanks-msg">Gian &amp; Alissen 🤍</p>
+        <p class="thanks-date">12 · 02 · 2027</p>
       </div>
     </div>
 
@@ -1050,7 +1062,7 @@ let guestId   = null;
 let attendVal = '';
 
 function showState(id) {
-  ['form-loading','form-no-token','form-wrap','form-already','success-wrap','decline-wrap'].forEach(d => {
+  ['form-loading','form-no-token','form-wrap','form-already','form-closed','success-wrap','decline-wrap'].forEach(d => {
     const el = document.getElementById(d);
     if (el) el.style.display = (d === id) ? 'block' : 'none';
   });
@@ -1086,6 +1098,13 @@ function renderForm() {
   document.getElementById('guest-name-display').textContent = guestData.nombre || '—';
   buildCompanionSlots();
   showState('form-wrap');
+}
+
+// confirmado gana: quien ya respondió siempre ve su respuesta, aunque el save the date se haya cerrado.
+function renderGuest() {
+  if (guestData.confirmado)      renderAlreadyConfirmed();
+  else if (guestData.stdCerrado) showState('form-closed');
+  else                           renderForm();
 }
 
 function renderAlreadyConfirmed() {
@@ -1154,7 +1173,7 @@ async function loadByCode() {
   errEl.style.display = 'none';
   const found = await fetchGuest(code);
   if (!found) { errEl.style.display = ''; return; }
-  guestData.confirmado ? renderAlreadyConfirmed() : renderForm();
+  renderGuest();
 }
 
 /* ─── CALENDARIO ─── */
@@ -1204,7 +1223,7 @@ function smartAddCalendar() {
     document.getElementById('code-error').style.display = '';
     return;
   }
-  guestData.confirmado ? renderAlreadyConfirmed() : renderForm();
+  renderGuest();
 })();
 </script>
 
