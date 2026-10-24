@@ -4,6 +4,15 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Invitación · Gian &amp; Alissen</title>
+<meta name="description" content="Viernes 12 de febrero de 2027 · Antigua Guatemala. Toca para abrir tu invitación.">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Gian &amp; Alissen · Invitación">
+<meta property="og:description" content="Viernes 12 de febrero de 2027 · Antigua Guatemala. Toca para abrir tu invitación.">
+<meta property="og:image" content="https://boda-gian-y-alissen.netlify.app/photos/hero-dip.jpg">
+<meta property="og:image:width" content="1280">
+<meta property="og:image:height" content="1920">
+<meta property="og:url" content="https://boda-gian-y-alissen.netlify.app/invitacion.html">
+<meta name="twitter:card" content="summary_large_image">
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,340;1,400&family=Archivo:wght@400;600&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
@@ -609,7 +618,7 @@ footer .fdate{ margin-top:8px; font-size:10.5px; letter-spacing:3px; color:var(-
     var max = (guestData && guestData.maxAcompanantes) || 0;
     sec.style.display = 'none';
     if(max === 0){ sec.innerHTML = ''; return; }
-    var html = '<div class="fgroup companion-extra">';
+    var html = '<div class="fgroup">';
     html += '<label>Acompañante' + (max > 1 ? 's' : '') + ' (hasta ' + max + ')</label>';
     for(var i = 1; i <= max; i++){
       html += '<div class="comp-slot">';
@@ -619,6 +628,9 @@ footer .fdate{ margin-top:8px; font-size:10.5px; letter-spacing:3px; color:var(-
     }
     html += '</div>';
     sec.innerHTML = html;
+    // Prefill with the names they gave in the save the date, so most guests just confirm.
+    var prev = guestData.bodaAcompanantes || guestData.acompanantes || [];
+    for(var j = 1; j <= max; j++){ if(prev[j-1]) document.getElementById('comp-' + j).value = prev[j-1]; }
   }
 
   function renderForm(){
@@ -627,12 +639,14 @@ footer .fdate{ margin-top:8px; font-size:10.5px; letter-spacing:3px; color:var(-
     showState('form-wrap-state');
   }
 
+  /* La invitación oficial tiene su propia confirmación (campos boda*), separada
+     de la del save the date (confirmado/asistira), que queda como historial. */
   function renderAlreadyConfirmed(){
-    if(!guestData.asistira){ showState('decline-wrap'); return; }
-    var alreadyCal = document.getElementById('already-cal');
-    if(alreadyCal) alreadyCal.style.display = guestData.asistira ? '' : 'none';
+    if(!guestData.bodaAsistira){ showState('decline-wrap'); return; }
+    document.getElementById('already-cal').style.display = '';
     showState('form-already');
   }
+  function renderGuest(){ guestData.bodaConfirmado ? renderAlreadyConfirmed() : renderForm(); }
 
   window.selectAttend = function(v){
     attendVal = v;
@@ -664,10 +678,10 @@ footer .fdate{ margin-top:8px; font-size:10.5px; letter-spacing:3px; color:var(-
     btn.disabled = true;
     btn.textContent = 'Enviando…';
     db.collection('guests').doc(guestId).update({
-      confirmado:   true,
-      asistira:     attendVal === 'si',
-      acompanantes: acompanantes,
-      confirmadoEn: firebase.firestore.FieldValue.serverTimestamp()
+      bodaConfirmado:   true,
+      bodaAsistira:     attendVal === 'si',
+      bodaAcompanantes: acompanantes,
+      bodaConfirmadoEn: firebase.firestore.FieldValue.serverTimestamp()
     }).then(function(){
       showState(attendVal === 'si' ? 'success-wrap' : 'decline-wrap');
     }).catch(function(){
@@ -686,7 +700,7 @@ footer .fdate{ margin-top:8px; font-size:10.5px; letter-spacing:3px; color:var(-
     errEl.style.display = 'none';
     fetchGuest(code).then(function(found){
       if(!found){ errEl.style.display = ''; return; }
-      guestData.confirmado ? renderAlreadyConfirmed() : renderForm();
+      renderGuest();
     });
   };
 
@@ -734,7 +748,7 @@ footer .fdate{ margin-top:8px; font-size:10.5px; letter-spacing:3px; color:var(-
         document.getElementById('code-error').style.display = '';
         return;
       }
-      guestData.confirmado ? renderAlreadyConfirmed() : renderForm();
+      renderGuest();
     });
   })();
 })();

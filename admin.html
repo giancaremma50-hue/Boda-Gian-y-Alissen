@@ -75,6 +75,13 @@ main { max-width: 1200px; margin: 0 auto; padding: 32px 20px 60px; }
   line-height: 1;
   margin-bottom: 6px;
 }
+.stats-title {
+  font-size: 11.5px;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin: 0 0 12px;
+}
 .stat-card .lbl {
   font-size: 11.5px;
   letter-spacing: 3px;
@@ -87,7 +94,7 @@ main { max-width: 1200px; margin: 0 auto; padding: 32px 20px 60px; }
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
-  margin-bottom: 20px;
+  margin-bottom: 12px;
   align-items: center;
 }
 .filter-btn {
@@ -290,6 +297,7 @@ tbody td {
   z-index: 999;
 }
 #toast.show { opacity: 1; }
+.wa-link { display: inline-block; margin-top: 8px; color: var(--gold); border: 1px solid var(--gold); padding: 6px 14px; border-radius: 4px; }
 
 /* ── DENIED ── */
 #denied {
@@ -334,6 +342,16 @@ tbody td {
 
   <main>
     <!-- Stats -->
+    <p class="stats-title">Boda · invitación oficial</p>
+    <div class="stats-grid">
+      <div class="stat-card"><div class="num" id="st-invited">—</div><div class="lbl">Invitación enviada</div></div>
+      <div class="stat-card"><div class="num" id="st-b-yes">—</div><div class="lbl">Asistirán</div></div>
+      <div class="stat-card"><div class="num" id="st-b-people">—</div><div class="lbl">Total personas</div></div>
+      <div class="stat-card"><div class="num" id="st-b-pending">—</div><div class="lbl">Sin responder</div></div>
+      <div class="stat-card"><div class="num" id="st-b-no">—</div><div class="lbl">No asisten</div></div>
+    </div>
+
+    <p class="stats-title">Save the date</p>
     <div class="stats-grid">
       <div class="stat-card"><div class="num" id="st-total">—</div><div class="lbl">Total invitaciones</div></div>
       <div class="stat-card"><div class="num" id="st-confirmed">—</div><div class="lbl">Confirmados</div></div>
@@ -341,7 +359,6 @@ tbody td {
       <div class="stat-card"><div class="num" id="st-pending">—</div><div class="lbl">Pendientes</div></div>
       <div class="stat-card"><div class="num" id="st-closed">—</div><div class="lbl">Sin respuesta</div></div>
       <div class="stat-card"><div class="num" id="st-no">—</div><div class="lbl">No asisten</div></div>
-      <div class="stat-card"><div class="num" id="st-invited">—</div><div class="lbl">Invitación enviada</div></div>
     </div>
 
     <!-- Add form -->
@@ -370,13 +387,19 @@ tbody td {
     <!-- Filters + actions -->
     <div class="toolbar">
       <button class="filter-btn active" onclick="setFilter('all',this)">Todos</button>
+      <button class="filter-btn" onclick="setFilter('bYes',this)">Boda: asistirán</button>
+      <button class="filter-btn" onclick="setFilter('bPending',this)">Boda: sin responder</button>
+      <button class="filter-btn" onclick="setFilter('bNo',this)">Boda: no asisten</button>
+      <button class="filter-btn" onclick="setFilter('invited',this)">Invitación enviada</button>
+      <button class="filter-btn" onclick="setFilter('notInvited',this)">Sin invitación</button>
+    </div>
+    <div class="toolbar">
+      <span style="font-size:11.5px;letter-spacing:3px;color:var(--green-pale);text-transform:uppercase;">Save the date:</span>
       <button class="filter-btn" onclick="setFilter('confirmed',this)">Confirmados</button>
       <button class="filter-btn" onclick="setFilter('attending',this)">Asistirán</button>
       <button class="filter-btn" onclick="setFilter('pending',this)">Pendientes</button>
       <button class="filter-btn" onclick="setFilter('closed',this)">Sin respuesta</button>
       <button class="filter-btn" onclick="setFilter('no',this)">No asisten</button>
-      <button class="filter-btn" onclick="setFilter('invited',this)">Invitación enviada</button>
-      <button class="filter-btn" onclick="setFilter('notInvited',this)">Sin invitación</button>
     </div>
 
     <!-- Table -->
@@ -387,15 +410,16 @@ tbody td {
             <th>#</th>
             <th>Nombre</th>
             <th>Acomp. permitidos</th>
-            <th>Estado</th>
-            <th>Acompañantes registrados</th>
-            <th>Fecha confirmación</th>
+            <th>Save the date</th>
+            <th>Acompañantes</th>
             <th>Invitación</th>
+            <th>Boda</th>
+            <th>Acompañantes boda</th>
             <th>Acciones</th>
           </tr>
         </thead>
         <tbody id="table-body">
-          <tr><td colspan="8" class="msg">Cargando…</td></tr>
+          <tr><td colspan="9" class="msg">Cargando…</td></tr>
         </tbody>
       </table>
     </div>
@@ -493,7 +517,8 @@ const BASE_GUESTS = [
 let db;
 let allGuests = [];
 let currentFilter = 'all';
-const SITE_URL = location.origin;
+// Links in WhatsApp messages always point at the live site, even when the panel is opened elsewhere.
+const SITE_URL = 'https://boda-gian-y-alissen.netlify.app';
 
 function startApp() {
   try {
@@ -504,7 +529,7 @@ function startApp() {
   } catch(e) {
     console.error('Firebase init error:', e);
     document.getElementById('table-body').innerHTML =
-      `<tr><td colspan="8" class="msg" style="color:#e07070;">Error al inicializar Firebase:<br><strong>${e.message}</strong><br>Revisa la API key y la configuración.</td></tr>`;
+      `<tr><td colspan="9" class="msg" style="color:#e07070;">Error al inicializar Firebase:<br><strong>${e.message}</strong><br>Revisa la API key y la configuración.</td></tr>`;
   }
 }
 
@@ -512,7 +537,7 @@ function startApp() {
 function loadGuests() {
   const hangTimeout = setTimeout(() => {
     document.getElementById('table-body').innerHTML =
-      '<tr><td colspan="8" class="msg" style="color:#e07070;">Sin respuesta de Firebase después de 12 segundos.<br>Posible causa: API key inválida o Firestore no habilitado.<br>Abre la consola del navegador (F12) para más detalles.</td></tr>';
+      '<tr><td colspan="9" class="msg" style="color:#e07070;">Sin respuesta de Firebase después de 12 segundos.<br>Posible causa: API key inválida o Firestore no habilitado.<br>Abre la consola del navegador (F12) para más detalles.</td></tr>';
   }, 12000);
 
   db.collection('guests').onSnapshot(snap => {
@@ -527,7 +552,7 @@ function loadGuests() {
     clearTimeout(hangTimeout);
     console.error('Firestore read error:', err);
     document.getElementById('table-body').innerHTML =
-      `<tr><td colspan="8" class="msg" style="color:#e07070;">Error Firestore: <strong>${err.code}</strong><br>${err.message}</td></tr>`;
+      `<tr><td colspan="9" class="msg" style="color:#e07070;">Error Firestore: <strong>${err.code}</strong><br>${err.message}</td></tr>`;
   });
 }
 
@@ -564,6 +589,23 @@ function updateStats() {
   closeBtn.style.display = n ? '' : 'none';
   closeBtn.textContent   = 'Cerrar save the date (' + n + ')';
   document.getElementById('st-invited').textContent        = invited.length;
+
+  const bYes = allGuests.filter(isBodaYes);
+  document.getElementById('st-b-yes').textContent     = bYes.length;
+  document.getElementById('st-b-people').textContent  = bYes.reduce((s, g) => s + 1 + (g.bodaAcompanantes || []).length, 0);
+  document.getElementById('st-b-pending').textContent = allGuests.filter(isBodaPending).length;
+  document.getElementById('st-b-no').textContent      = allGuests.filter(isBodaNo).length;
+}
+
+/* ─── CONFIRMACIÓN DE LA BODA (invitacion.html) ───
+   Campos propios: bodaConfirmado / bodaAsistira / bodaAcompanantes / bodaConfirmadoEn.
+   Pendiente = ya se le envió la invitación y aún no responde. */
+function isBodaYes(g)     { return !!g.bodaConfirmado && !!g.bodaAsistira; }
+function isBodaNo(g)      { return !!g.bodaConfirmado && !g.bodaAsistira; }
+function isBodaPending(g) { return !!g.invitacionEnviada && !g.bodaConfirmado; }
+function bodaTexto(g) {
+  if (g.bodaConfirmado) return g.bodaAsistira ? 'Asistirá' : 'No asiste';
+  return g.invitacionEnviada ? 'Sin responder' : 'Invitación no enviada';
 }
 
 /* ─── FILTER ─── */
@@ -581,6 +623,9 @@ function filteredGuests() {
     case 'pending':   return allGuests.filter(isPending);
     case 'closed':    return allGuests.filter(isClosed);
     case 'no':        return allGuests.filter(g => g.confirmado && !g.asistira);
+    case 'bYes':      return allGuests.filter(isBodaYes);
+    case 'bPending':  return allGuests.filter(isBodaPending);
+    case 'bNo':       return allGuests.filter(isBodaNo);
     case 'invited':   return allGuests.filter(g => g.invitacionEnviada);
     case 'notInvited':return allGuests.filter(g => !g.invitacionEnviada);
     default:          return allGuests;
@@ -592,7 +637,7 @@ function renderTable() {
   const tbody = document.getElementById('table-body');
   const list  = filteredGuests();
   if (list.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="8" class="msg">Sin resultados</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="9" class="msg">Sin resultados</td></tr>';
     return;
   }
   tbody.innerHTML = list.map((g, i) => {
@@ -602,13 +647,18 @@ function renderTable() {
     else if (g.asistira)    badge = '<span class="badge badge-confirmed">Asistirá ✓</span>';
     else                    badge = '<span class="badge badge-no">No asiste</span>';
 
-    const comps = (g.acompanantes && g.acompanantes.length)
-      ? '<div class="companions-list">' + g.acompanantes.join('<br>') + '</div>'
+    const compsHtml = list => (list && list.length)
+      ? '<div class="companions-list">' + list.map(esc).join('<br>') + '</div>'
       : '<span style="color:rgba(255,255,255,.3);font-size: 12.5px;">—</span>';
+    const comps = compsHtml(g.acompanantes);
 
-    const fecha = g.confirmadoEn
-      ? (g.confirmadoEn.toDate ? g.confirmadoEn.toDate().toLocaleString('es-GT') : '—')
-      : '—';
+    let bodaBadge;
+    if (isBodaYes(g))          bodaBadge = '<span class="badge badge-confirmed">Asistirá ✓</span>';
+    else if (isBodaNo(g))      bodaBadge = '<span class="badge badge-no">No asiste</span>';
+    else if (isBodaPending(g)) bodaBadge = '<span class="badge badge-pending">Sin responder</span>';
+    else                       bodaBadge = '<span class="badge badge-closed">—</span>';
+    const bodaFecha = g.bodaConfirmadoEn && g.bodaConfirmadoEn.toDate
+      ? '<div style="font-size:11.5px;color:var(--green-pale);margin-top:4px;">' + g.bodaConfirmadoEn.toDate().toLocaleString('es-GT') + '</div>' : '';
 
     const invBadge = g.invitacionEnviada
       ? '<span class="badge badge-confirmed">Enviada ✓</span>'
@@ -620,12 +670,13 @@ function renderTable() {
       <td style="text-align:center;">${g.maxAcompanantes}</td>
       <td>${badge}</td>
       <td>${comps}</td>
-      <td style="font-size: 12.5px;color:var(--green-pale);">${fecha}</td>
       <td>${invBadge}</td>
+      <td>${bodaBadge}${bodaFecha}</td>
+      <td>${compsHtml(g.bodaAcompanantes)}</td>
       <td>
         <div class="row-actions">
-          <button class="icon-btn copy" title="Enviar invitación oficial" onclick="sendInvitation('${g.id}')">✉️</button>
-          <button class="icon-btn copy" title="Copiar link save the date" onclick="copyLink('${g.id}')">🔗</button>
+          <button class="icon-btn copy" title="Enviar invitación oficial por WhatsApp" onclick="sendInvitation('${g.id}')">✉️</button>
+          <button class="icon-btn copy" title="Enviar save the date por WhatsApp" onclick="copyLink('${g.id}')">🔗</button>
           ${isClosed(g) ? `<button class="icon-btn" title="Reabrir save the date" onclick="reopenGuest('${g.id}')">🔓</button>` : ''}
           <button class="icon-btn" title="Editar" onclick="startEdit('${g.id}')">✏️</button>
           <button class="icon-btn del" title="Eliminar" onclick="deleteGuest('${g.id}')">🗑️</button>
@@ -655,8 +706,14 @@ Queríamos compartir esta noticia con ustedes y pedirles que reserven una fecha 
 Con cariño,
 Gian & Alissen 🤍`;
 
-  navigator.clipboard.writeText(msg).then(() => toast('Mensaje copiado ✓'));
+  openWhatsApp(msg);
+  navigator.clipboard.writeText(msg).then(() => toast('WhatsApp abierto · mensaje también copiado ✓'), () => toast('WhatsApp abierto ✓'));
 }
+
+/* Abre WhatsApp con el mensaje ya escrito; solo falta elegir el chat.
+   Se llama antes de cualquier await para que el navegador no bloquee la ventana. */
+function whatsAppUrl(msg) { return 'https://wa.me/?text=' + encodeURIComponent(msg); }
+function openWhatsApp(msg) { window.open(whatsAppUrl(msg), '_blank', 'noopener'); }
 
 /* ─── ENVIAR INVITACIÓN OFICIAL ─── */
 function invitationMessage(nombre, id) {
@@ -675,14 +732,14 @@ async function sendInvitation(id) {
   const g      = allGuests.find(x => x.id === id);
   const nombre = g ? g.nombre : 'Invitado';
   const msg    = invitationMessage(nombre, id);
-  let copied = true;
-  try { await navigator.clipboard.writeText(msg); } catch(e) { copied = false; }
+  openWhatsApp(msg);
+  try { await navigator.clipboard.writeText(msg); } catch(e) {}
   try {
     await db.collection('guests').doc(id).update({
       invitacionEnviada:   true,
       invitacionEnviadaEn: firebase.firestore.FieldValue.serverTimestamp()
     });
-    toast(copied ? 'Invitación copiada y marcada como enviada ✓' : 'Marcada como enviada (no se pudo copiar el mensaje)');
+    toast('WhatsApp abierto · invitación marcada como enviada ✓');
   } catch(e) {
     toast('Error al marcar la invitación como enviada');
   }
@@ -704,7 +761,7 @@ function startEdit(id) {
         <option value="3" ${g.maxAcompanantes===3?'selected':''}>3</option>
       </select>
     </td>
-    <td colspan="4" style="color:var(--green-pale);font-size: 12.5px;">Editando…</td>
+    <td colspan="5" style="color:var(--green-pale);font-size: 12.5px;">Editando…</td>
     <td>
       <div class="row-actions">
         <button class="icon-btn copy" onclick="saveEdit('${id}')">💾 Guardar</button>
@@ -806,8 +863,9 @@ async function saveNewGuest() {
       try { await navigator.clipboard.writeText(msg); } catch(e) { copied = false; }
       const result = document.getElementById('add-form-result');
       result.style.display = 'block';
-      result.innerHTML = (copied ? 'Invitación copiada al portapapeles' : 'No se pudo copiar automáticamente, cópiala manualmente') +
-        ' — pégala en WhatsApp:<br>' + SITE_URL + '/invitacion.html?inv=' + ref.id;
+      result.innerHTML = (copied ? 'Invitación copiada al portapapeles' : 'No se pudo copiar automáticamente') +
+        ' · link: ' + SITE_URL + '/invitacion.html?inv=' + ref.id +
+        '<br><a class="wa-link" target="_blank" rel="noopener" href="' + esc(whatsAppUrl(msg)) + '">Abrir en WhatsApp</a>';
       toast(copied ? 'Invitado creado e invitación copiada ✓' : 'Invitado creado ✓ (copia el link manualmente)');
     } else {
       document.getElementById('add-form').classList.remove('open');
@@ -849,7 +907,7 @@ async function initGuestList() {
 
 /* ─── EXPORT CSV ─── */
 function exportCSV() {
-  const header = ['Nombre','Acompañantes permitidos','Estado','Asistirá','Acompañantes registrados','Fecha confirmación','Invitación enviada','Link save the date','Link invitación oficial'];
+  const header = ['Nombre','Acompañantes permitidos','Save the date','Asistirá (STD)','Acompañantes (STD)','Fecha confirmación (STD)','Invitación enviada','Boda','Acompañantes boda','Fecha confirmación boda','Link save the date','Link invitación oficial'];
   const rows   = allGuests.map(g => {
     const estado = estadoTexto(g);
     const fecha  = g.confirmadoEn
@@ -857,7 +915,9 @@ function exportCSV() {
     const link    = SITE_URL + '/index.html?inv=' + g.id;
     const linkInv = SITE_URL + '/invitacion.html?inv=' + g.id;
     const comps   = (g.acompanantes || []).join(' | ');
-    return [g.nombre, g.maxAcompanantes, estado, g.asistira ? 'Sí' : (g.confirmado ? 'No' : '—'), comps, fecha, g.invitacionEnviada ? 'Sí' : 'No', link, linkInv];
+    const fechaBoda = g.bodaConfirmadoEn && g.bodaConfirmadoEn.toDate ? g.bodaConfirmadoEn.toDate().toLocaleString('es-GT') : '';
+    return [g.nombre, g.maxAcompanantes, estado, g.asistira ? 'Sí' : (g.confirmado ? 'No' : '—'), comps, fecha, g.invitacionEnviada ? 'Sí' : 'No',
+            bodaTexto(g), (g.bodaAcompanantes || []).join(' | '), fechaBoda, link, linkInv];
   });
   const csv = [header, ...rows].map(r => r.map(c => '"' + String(c).replace(/"/g,'""') + '"').join(',')).join('\n');
   const blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8;' });
