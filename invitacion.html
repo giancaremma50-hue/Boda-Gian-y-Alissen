@@ -13,7 +13,7 @@
   --ink:#201f1c;
   --cobalt:#2b4570;
   --cobalt-light:#5c7aa6;
-  --olive:#7a7566;
+  --olive:#615c4f;
   --rule:#cfc9ba;
   --card:#f2eee2;
 }
@@ -77,44 +77,54 @@ body{
   display:flex; align-items:flex-end;
   background-image:url('/photos/hero-dip.jpg'); background-size:cover; background-position:center 62%;
 }
-/* "Diving into the letter": the closing video pushes forward and
-   loses focus (as if the camera passed through the paper), the
-   incoming video arrives already close and pulls back into focus —
-   scale + blur read as depth without any 3D transform. */
+/* "Into the letter", in three beats:
+   1. diving — as the flap settles, the camera glides into the open
+      envelope, toward the white card (origin = where the card sits in
+      the video frame), slow start / slow finish like a real dolly;
+   2. the card's paper fills the screen (#paper-veil, same warm white);
+   3. revealed — the paper dissolves and the couple's video settles
+      from a slight zoom, so the motion never stops between beats. */
 #letter-video, #hero-video{
   position:absolute; inset:0; width:100%; height:100%; object-fit:cover; display:block;
 }
 #letter-video{
-  z-index:2; background:var(--putty);
-  transition:opacity .5s cubic-bezier(.55,0,1,.45), transform .5s cubic-bezier(.55,0,1,.45), filter .5s cubic-bezier(.55,0,1,.45);
+  z-index:2; background:var(--putty); transform-origin:50% 38%;
+  transition:transform 1.5s cubic-bezier(.65,0,.35,1), filter 1.5s cubic-bezier(.65,0,.35,1);
 }
 #hero-video{
-  z-index:1; opacity:0; transform:scale(1.16); filter:blur(14px);
-  transition:opacity .55s cubic-bezier(.22,1,.36,1), transform .55s cubic-bezier(.22,1,.36,1), filter .55s cubic-bezier(.22,1,.36,1);
+  z-index:1; opacity:0; transform:scale(1.07);
+  transition:transform 2.8s cubic-bezier(.16,1,.3,1);
 }
-#intro-scene.opened #letter-video, #intro-scene.opened #blur-letter-bg{ opacity:0; transform:scale(1.4); filter:blur(20px); }
-#intro-scene.opened #hero-video, #intro-scene.opened #blur-hero-bg{ opacity:1; transform:scale(1); filter:blur(0); }
+#paper-veil{
+  position:absolute; inset:0; z-index:3; pointer-events:none; opacity:0;
+  background:radial-gradient(ellipse at 50% 42%, #fbf9f4 0%, #f3efe5 70%, #ebe5d6 100%);
+  transition:opacity .75s cubic-bezier(.4,0,.2,1) .65s;
+}
+#intro-scene.diving #letter-video{ transform:scale(3.4); filter:blur(1.5px); }
+#intro-scene.diving #paper-veil{ opacity:1; }
+#intro-scene.diving #blur-letter-bg{ opacity:0; transition-duration:1.4s; }
+#intro-scene.revealed #letter-video{ visibility:hidden; }
+#intro-scene.revealed #hero-video, #intro-scene.revealed #blur-hero-bg{ opacity:1; transform:scale(1); }
+#intro-scene.revealed #paper-veil{ opacity:0; transition:opacity 1.3s cubic-bezier(.4,0,.2,1); }
 #intro-scene.is-static #letter-video, #intro-scene.is-static #blur-letter-bg{ display:none; }
 #intro-scene.is-static #hero-video, #intro-scene.is-static #blur-hero-bg{ opacity:1; transform:none; filter:none; }
 .hero-overlay{
-  position:absolute; inset:0; z-index:3;
+  position:absolute; inset:0; z-index:2;
   background:linear-gradient(180deg, rgba(20,20,18,.18) 0%, rgba(20,20,18,.18) 40%, rgba(15,15,13,.72) 100%);
 }
 .hero-content{ position:relative; z-index:4; width:100%; padding-bottom:56px; text-align:center; color:#f3efe4; }
-.hero-eyebrow{ font-size:11.5px; letter-spacing:6px; text-transform:uppercase; color:#cdd8c6; margin-bottom:16px; }
 #intro-stage .masthead-title{ color:#f6f3ec; }
-#intro-stage .masthead-sub{ color:#cdd8c6; margin-top:16px; }
-.intro-reveal{ opacity:0; transform:translateY(18px); transition:opacity .7s cubic-bezier(.22,1,.36,1), transform .7s cubic-bezier(.22,1,.36,1); }
-.intro-reveal.visible{ opacity:1; transform:translateY(0); }
-.intro-reveal.d1{ transition-delay:.08s; }
-.intro-reveal.d2{ transition-delay:.22s; }
-.intro-reveal.d3{ transition-delay:.36s; }
+#intro-stage .masthead-sub{ color:#cdd8c6; margin-top:18px; font-size:11px; letter-spacing:2.5px; white-space:nowrap; }
+.intro-reveal{ opacity:0; transform:translateY(14px); filter:blur(6px); transition:opacity 1.2s cubic-bezier(.22,1,.36,1), transform 1.4s cubic-bezier(.22,1,.36,1), filter 1.2s cubic-bezier(.22,1,.36,1); }
+.intro-reveal.visible{ opacity:1; transform:translateY(0); filter:blur(0); }
+.intro-reveal.d2{ transition-delay:.25s; }
+.intro-reveal.d3{ transition-delay:.6s; }
 
 #tap-open{
   position:absolute; inset:0; z-index:5; width:100%; height:100%;
   display:flex; align-items:flex-end; justify-content:center; padding-bottom:56px;
   background:none; border:none; margin:0; cursor:pointer; -webkit-tap-highlight-color:transparent;
-  transition:opacity .4s ease;
+  transition:opacity .6s cubic-bezier(.4,0,.2,1), transform .6s cubic-bezier(.4,0,.2,1);
 }
 .tap-open-pill{
   font-family:'Archivo',sans-serif; font-size:11px; letter-spacing:4px; text-transform:uppercase; color:#f3efe4;
@@ -123,7 +133,7 @@ body{
   animation:tapPulse 3.4s ease-in-out infinite;
 }
 @keyframes tapPulse{ 0%,100%{ opacity:.82; transform:translateY(0); } 50%{ opacity:1; transform:translateY(-3px); } }
-#intro-scene.opening #tap-open, #intro-scene.opened #tap-open, #intro-scene.is-static #tap-open{ opacity:0; pointer-events:none; }
+#intro-scene.opening #tap-open, #intro-scene.is-static #tap-open{ opacity:0; transform:scale(.96); pointer-events:none; }
 
 html.intro-locked, html.intro-locked body{ overflow:hidden; height:100%; }
 
@@ -137,13 +147,11 @@ html.intro-locked, html.intro-locked body{ overflow:hidden; height:100%; }
 /* =====================================================
    PAGE (Cuaderno de Antigua)
 ===================================================== */
-#masthead{ padding:20px 0 0; }
-.mh-row{ display:flex; justify-content:space-between; align-items:center; padding:16px 0; border-bottom:1px solid var(--rule); font-size:10.5px; letter-spacing:3px; text-transform:uppercase; color:var(--olive); }
-
 .masthead-title{ font-family:'Fraunces',serif; font-style:italic; font-weight:400; font-size:clamp(54px,15vw,108px); line-height:0.9; letter-spacing:-1px; }
 .masthead-sub{ margin-top:14px; font-size:12px; letter-spacing:4px; text-transform:uppercase; color:var(--cobalt); }
 
-#lede{ padding:64px 0 20px; }
+#lede{ padding:64px 0 56px; }
+.lede-text + .lede-text{ margin-top:18px; }
 .lede-text{ font-family:'Fraunces',serif; font-style:italic; font-weight:340; font-size:clamp(19px,4.4vw,24px); line-height:1.7; max-width:460px; text-align:left; }
 .lede-text .drop{ font-size:2.6em; float:left; line-height:0.8; padding-right:8px; color:var(--cobalt); }
 
@@ -154,14 +162,24 @@ html.intro-locked, html.intro-locked body{ overflow:hidden; height:100%; }
 .run-item{ display:grid; grid-template-columns:56px 1fr; gap:20px; padding:28px 0; border-top:1px solid var(--rule); align-items:start; }
 .run-item:first-of-type{ border-top:none; }
 .run-num{ font-family:'Fraunces',serif; font-style:italic; font-size:30px; color:var(--cobalt-light); }
-.run-body h3{ font-size:15px; letter-spacing:2px; text-transform:uppercase; margin-bottom:6px; }
-.run-body p{ font-size:14.5px; color:var(--olive); line-height:1.6; }
-.run-badge{ display:inline-block; margin-top:8px; font-size:9.5px; letter-spacing:2.5px; text-transform:uppercase; color:var(--cobalt); border-bottom:1px dashed var(--cobalt); padding-bottom:3px; }
+.run-body{ display:flex; flex-direction:column; align-items:flex-start; }
+.run-body h3{ font-size:13px; letter-spacing:3px; text-transform:uppercase; color:var(--cobalt); margin-bottom:8px; }
+.run-body .venue{ font-family:'Fraunces',serif; font-style:italic; font-size:22px; line-height:1.2; color:var(--ink); }
+.run-body p{ font-size:14px; color:var(--olive); line-height:1.55; margin-top:6px; }
+.map-btn{ margin-top:16px; display:inline-flex; align-items:center; gap:8px; min-height:44px; padding:0 20px; border:1px solid var(--cobalt); color:var(--cobalt); font-size:10.5px; letter-spacing:2.5px; text-transform:uppercase; text-decoration:none; transition:background .3s; }
+.map-btn:hover{ background:color-mix(in srgb, var(--cobalt) 8%, transparent); }
+.run-badge{ display:inline-block; margin-top:10px; font-size:9.5px; letter-spacing:2.5px; text-transform:uppercase; color:var(--cobalt); border-bottom:1px dashed var(--cobalt); padding-bottom:3px; }
 
-.swatch-card{ display:flex; gap:22px; align-items:center; background:var(--card); border:1px solid var(--rule); padding:26px; }
-.swatch-block{ width:64px; height:64px; flex:none; background:repeating-linear-gradient(45deg, var(--rule), var(--rule) 6px, transparent 6px, transparent 12px); border:1px solid var(--olive); }
-.swatch-copy h3{ font-size:14px; letter-spacing:2px; text-transform:uppercase; margin-bottom:6px; }
-.swatch-copy p{ font-size:13.5px; color:var(--olive); line-height:1.6; }
+.dress-grid{ display:grid; grid-template-columns:repeat(2, minmax(0,1fr)); gap:12px; }
+.dress-grid figure{ margin:0; display:flex; flex-direction:column; gap:14px; text-align:center; }
+.dress-grid img{ display:block; width:100%; height:min(320px, 80vw); object-fit:contain; object-position:center bottom; }
+.dress-who{ font-size:11px; letter-spacing:3px; text-transform:uppercase; color:var(--cobalt); }
+.dress-what{ margin-top:6px; font-family:'Fraunces',serif; font-style:italic; font-size:16px; line-height:1.35; }
+
+#regalos{ text-align:center; }
+#regalos .h2{ margin-bottom:20px; }
+.gifts-text{ margin:0 auto 28px; max-width:340px; font-size:14.5px; line-height:1.7; color:#4f4b40; }
+a.btn{ text-decoration:none; padding:15px 28px; letter-spacing:2px; }
 
 #gallery{ border-top:1px solid var(--rule); padding-bottom:20px; }
 .filmstrip{ display:flex; gap:14px; overflow-x:auto; scroll-snap-type:x mandatory; padding:6px 26px 26px; margin:0 -26px; -webkit-overflow-scrolling:touch; scrollbar-width:none; }
@@ -195,10 +213,17 @@ html.intro-locked, html.intro-locked body{ overflow:hidden; height:100%; }
 .fgroup input{ width:100%; background:transparent; border:none; border-bottom:1px solid var(--rule); color:var(--ink); font-family:'Fraunces',serif; font-size:18px; padding:8px 2px; outline:none; border-radius:0; transition:border-color .3s; }
 .fgroup input::placeholder{ color:var(--olive); opacity:.7; font-style:italic; }
 .fgroup input:focus{ border-bottom-color:var(--cobalt); }
-.guest-name-display{ font-family:'Fraunces',serif; font-style:italic; font-size:20px; color:var(--cobalt); padding:6px 0; border-bottom:1px solid var(--rule); margin-bottom:4px; }
-.adults-note{ font-size:12.5px; color:var(--olive); border-left:2px solid var(--cobalt); padding:8px 12px; margin:0 0 18px; line-height:1.6; text-align:left; }
-.radio-row{ display:flex; gap:10px; margin:4px 0 0; }
-.ropt{ flex:1; padding:11px 8px; border:1px solid var(--rule); text-align:center; cursor:pointer; font-size:10px; letter-spacing:2px; text-transform:uppercase; color:var(--olive); transition:all .3s; user-select:none; }
+.rsvp-intro{ font-size:13.5px; color:var(--olive); line-height:1.6; margin:-28px 0 28px; }
+.rsvp-card{ background:var(--card); border:1px solid var(--rule); padding:28px 22px; display:flex; flex-direction:column; gap:22px; }
+.rsvp-card .fgroup{ margin:0; }
+.guest-name-display{ font-family:'Fraunces',serif; font-style:italic; font-size:24px; color:var(--cobalt); }
+.adults-note{ font-size:12.5px; color:var(--olive); line-height:1.6; }
+.radio-row{ display:grid; grid-template-columns:repeat(2, minmax(0,1fr)); gap:10px; }
+.ropt{ min-height:48px; padding:0 8px; border:1px solid var(--rule); background:transparent; font-family:'Archivo',sans-serif; text-align:center; cursor:pointer; font-size:10.5px; letter-spacing:2px; text-transform:uppercase; color:var(--olive); transition:all .3s; -webkit-tap-highlight-color:transparent; }
+.rsvp-actions{ display:flex; flex-direction:column; gap:12px; padding-top:6px; }
+.rsvp-actions .btn, .rsvp-actions .cal-btn{ width:100%; min-height:52px; padding:0 12px; font-family:'Archivo',sans-serif; font-size:11px; letter-spacing:2px; white-space:nowrap; }
+.rsvp-actions .cal-btn{ justify-content:center; border-color:var(--cobalt); color:var(--cobalt); }
+.rsvp-date{ margin-top:4px; text-align:center; font-size:10px; letter-spacing:1.5px; text-transform:uppercase; color:var(--olive); }
 .ropt.sel{ border-color:var(--cobalt); color:var(--cobalt); background:color-mix(in srgb, var(--cobalt) 10%, transparent); }
 .companion-extra{ display:none; }
 .companion-extra.on{ display:block; }
@@ -206,8 +231,8 @@ html.intro-locked, html.intro-locked body{ overflow:hidden; height:100%; }
 .comp-slot label{ display:block; font-size:10px; letter-spacing:2px; text-transform:uppercase; color:var(--olive); margin-bottom:5px; }
 #code-error, #submit-error{ color:#a3432c; text-align:center; font-size:13px; margin-top:10px; }
 .cal-section{ margin-top:22px; padding-top:18px; border-top:1px solid var(--rule); text-align:center; }
-.cal-label{ font-size:9px; letter-spacing:3px; text-transform:uppercase; color:var(--olive); margin-bottom:12px; }
-.cal-btn{ display:inline-flex; align-items:center; gap:8px; padding:12px 26px; border:1px solid var(--rule); background:transparent; color:var(--ink); font-size:9px; letter-spacing:3px; text-transform:uppercase; cursor:pointer; transition:border-color .3s; -webkit-tap-highlight-color:transparent; }
+.cal-label{ font-size:10px; letter-spacing:3px; text-transform:uppercase; color:var(--olive); margin-bottom:12px; }
+.cal-btn{ display:inline-flex; align-items:center; gap:10px; min-height:44px; padding:12px 26px; border:1px solid var(--rule); background:transparent; color:var(--ink); font-family:'Archivo',sans-serif; font-size:10px; letter-spacing:3px; text-transform:uppercase; cursor:pointer; transition:border-color .3s; -webkit-tap-highlight-color:transparent; }
 .cal-btn:hover{ border-color:var(--cobalt); }
 .thanks-date{ margin-top:14px; font-size:10.5px; letter-spacing:3px; color:var(--olive); text-transform:uppercase; }
 
@@ -238,13 +263,13 @@ footer .fdate{ margin-top:8px; font-size:10.5px; letter-spacing:3px; color:var(-
       <div id="blur-hero-bg" class="blur-layer"></div>
     </div>
     <div id="intro-frame">
-      <video id="letter-video" muted playsinline preload="auto" src="/video/carta-apertura.mp4"></video>
+      <video id="letter-video" muted playsinline preload="auto" poster="/video/carta-apertura-poster.jpg" src="/video/carta-apertura.mp4"></video>
       <video id="hero-video" muted playsinline loop preload="auto" src="/video/hero-loop.mp4"></video>
       <div class="hero-overlay"></div>
+      <div id="paper-veil"></div>
       <div class="wrap hero-content">
-        <p class="hero-eyebrow intro-reveal d1">Nos casamos</p>
         <h1 class="masthead-title intro-reveal d2">Gian<br>&amp; Alissen</h1>
-        <p class="masthead-sub intro-reveal d3">Antigua Guatemala — 12 · 02 · 2027</p>
+        <p class="masthead-sub intro-reveal d3">Antigua Guatemala · 12 · 02 · 2027</p>
       </div>
       <button id="tap-open" type="button" aria-label="Toca para abrir la invitación">
         <span class="tap-open-pill">Toca para abrir</span>
@@ -253,41 +278,36 @@ footer .fdate{ margin-top:8px; font-size:10.5px; letter-spacing:3px; color:var(-
   </div>
 </section>
 
-<header id="masthead">
-  <div class="wrap">
-    <div class="mh-row">
-      <span>Antigua Guatemala</span>
-      <span>Vol. I — 12.02.2027</span>
-    </div>
-  </div>
-</header>
-
 <section id="lede">
   <div class="wrap">
-    <p class="lede-text reveal"><span class="drop">D</span>espués de anunciarles la fecha, llega el turno de los detalles.
-    Este pequeño cuaderno reúne todo lo que necesitas saber para acompañarnos
-    en Antigua Guatemala — dónde, cuándo y cómo vestir para la ocasión.</p>
+    <p class="lede-text reveal"><span class="drop">E</span>ntre alguien que siempre busca tener la razón y alguien que intenta entender el porqué de todo, encontramos algo en lo que nunca hemos tenido dudas: nuestro amor.</p>
+    <p class="lede-text reveal">La vida nos enseñó que no todo necesita una explicación, ni todo tiene que salir exactamente como lo planeamos.</p>
+    <p class="lede-text reveal">A veces, simplemente hay personas con las que todo tiene sentido.</p>
+    <p class="lede-text reveal">Y nosotros elegimos seguir construyendo nuestra historia, juntos y para toda la vida.</p>
   </div>
 </section>
 
 <section class="section" id="itinerario">
   <div class="wrap">
-    <p class="kicker">Viernes 12 de febrero, 2027</p>
-    <h2 class="h2 reveal">Itinerario del día</h2>
+    <h2 class="h2 reveal">Itinerario</h2>
     <div class="run-item reveal">
       <div class="run-num">01</div>
       <div class="run-body">
         <h3>Ceremonia</h3>
-        <p>Antigua Guatemala</p>
-        <span class="run-badge">Lugar y hora por confirmar</span>
+        <span class="venue">Iglesia Escuela de Cristo</span>
+        <p>Calle de los Pasos, Antigua Guatemala</p>
+        <span class="run-badge">Hora por confirmar</span>
+        <a class="map-btn" href="https://www.google.com/maps/search/?api=1&amp;query=Iglesia+Escuela+de+Cristo%2C+Antigua+Guatemala" target="_blank" rel="noopener"><svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg>Cómo llegar</a>
       </div>
     </div>
     <div class="run-item reveal">
       <div class="run-num">02</div>
       <div class="run-body">
         <h3>Recepción</h3>
-        <p>Antigua Guatemala</p>
-        <span class="run-badge">Lugar y hora por confirmar</span>
+        <span class="venue">Convento Capuchinas</span>
+        <p>2a Avenida Norte y 2a Calle Oriente, esquina — Antigua Guatemala, Sacatepéquez</p>
+        <span class="run-badge">Hora por confirmar</span>
+        <a class="map-btn" href="https://www.google.com/maps/search/?api=1&amp;query=Convento+Capuchinas%2C+2a+Avenida+Norte+11%2C+Antigua+Guatemala" target="_blank" rel="noopener"><svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg>Cómo llegar</a>
       </div>
     </div>
   </div>
@@ -296,42 +316,53 @@ footer .fdate{ margin-top:8px; font-size:10.5px; letter-spacing:3px; color:var(-
 <section class="section" id="vestimenta">
   <div class="wrap">
     <p class="kicker">Código de vestimenta</p>
-    <h2 class="h2 reveal">Muestra por confirmar</h2>
-    <div class="swatch-card reveal">
-      <div class="swatch-block"></div>
-      <div class="swatch-copy">
-        <h3>Próximamente</h3>
-        <p>Estamos afinando la paleta de colores y el nivel de formalidad. Lo anunciamos pronto — guarda este espacio.</p>
-      </div>
+    <h2 class="h2 reveal">Formal, todo en negro</h2>
+    <div class="dress-grid reveal">
+      <figure>
+        <img src="/photos/vestimenta-ellas.png" alt="Vestido largo completamente negro" loading="lazy">
+        <figcaption><p class="dress-who">Ellas</p><p class="dress-what">Vestido completamente negro</p></figcaption>
+      </figure>
+      <figure>
+        <img src="/photos/vestimenta-ellos.png" alt="Traje formal negro con camisa y corbata negras" loading="lazy">
+        <figcaption><p class="dress-who">Ellos</p><p class="dress-what">Traje formal negro con camisa negra</p></figcaption>
+      </figure>
     </div>
+  </div>
+</section>
+
+<section class="section" id="regalos">
+  <div class="wrap">
+    <h2 class="h2 reveal">Mesa de regalos</h2>
+    <p class="gifts-text reveal">Con mucha ilusión comenzamos a preparar nuestro primer hogar juntos. Si desean tener un detalle con nosotros, hemos seleccionado algunos regalos en Cemaco que formarán parte de esta etapa tan especial.</p>
+    <!-- TODO: reemplazar por el link exacto de la mesa de regalos en Cemaco -->
+    <a class="btn reveal" href="https://www.cemaco.com" target="_blank" rel="noopener">Consultar mesa de regalos</a>
   </div>
 </section>
 
 <section class="section" id="gallery">
   <div class="wrap">
-    <p class="kicker">Contactos</p>
-    <h2 class="h2 reveal">Antigua en seis cuadros</h2>
+    <h2 class="h2 reveal">Un amor chapado a la Antigua</h2>
   </div>
   <div class="filmstrip" id="filmstrip">
-    <div class="neg" data-full="/photos/hero-dip.jpg"><span class="frame-no">01</span><img src="/photos/hero-dip.jpg" alt="Gian y Alissen en las calles de Antigua"></div>
-    <div class="neg" data-full="/photos/invitacion-iglesia.jpg"><span class="frame-no">02</span><img src="/photos/invitacion-iglesia.jpg" alt="Frente a la iglesia colonial"></div>
-    <div class="neg" data-full="/photos/dresscode-escalones.jpg"><span class="frame-no">03</span><img src="/photos/dresscode-escalones.jpg" alt="Sentados en los escalones"></div>
-    <div class="neg" data-full="/photos/slideshow-beso-arco.jpg"><span class="frame-no">04</span><img src="/photos/slideshow-beso-arco.jpg" alt="Beso frente al portón colonial"></div>
-    <div class="neg" data-full="/photos/slideshow-beso-plaza.jpg"><span class="frame-no">05</span><img src="/photos/slideshow-beso-plaza.jpg" alt="En la plaza"></div>
-    <div class="neg" data-full="/photos/slideshow-caminando.jpg"><span class="frame-no">06</span><img src="/photos/slideshow-caminando.jpg" alt="Caminando juntos"></div>
+    <div class="neg" data-full="/photos/hero-dip.jpg"><span class="frame-no">01</span><img loading="lazy" src="/photos/hero-dip.jpg" alt="Gian y Alissen en las calles de Antigua"></div>
+    <div class="neg" data-full="/photos/invitacion-iglesia.jpg"><span class="frame-no">02</span><img loading="lazy" src="/photos/invitacion-iglesia.jpg" alt="Frente a la iglesia colonial"></div>
+    <div class="neg" data-full="/photos/dresscode-escalones.jpg"><span class="frame-no">03</span><img loading="lazy" src="/photos/dresscode-escalones.jpg" alt="Sentados en los escalones"></div>
+    <div class="neg" data-full="/photos/slideshow-beso-arco.jpg"><span class="frame-no">04</span><img loading="lazy" src="/photos/slideshow-beso-arco.jpg" alt="Beso frente al portón colonial"></div>
+    <div class="neg" data-full="/photos/slideshow-beso-plaza.jpg"><span class="frame-no">05</span><img loading="lazy" src="/photos/slideshow-beso-plaza.jpg" alt="En la plaza"></div>
+    <div class="neg" data-full="/photos/slideshow-caminando.jpg"><span class="frame-no">06</span><img loading="lazy" src="/photos/slideshow-caminando.jpg" alt="Caminando juntos"></div>
   </div>
   <p class="strip-hint">Desliza para ver el rollo completo — toca una foto para ampliar</p>
 </section>
 
 <div id="lightbox">
   <div id="lightbox-close"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M18 6L6 18"/></svg></div>
-  <img id="lightbox-img" src="" alt="">
+  <img id="lightbox-img" alt="">
 </div>
 
 <section class="section" id="rsvp">
   <div class="wrap">
-    <p class="kicker">Confirmación</p>
     <h2 class="h2 reveal">Confirma tu asistencia</h2>
+    <p class="rsvp-intro">Nos ayudaría mucho saber si podrás acompañarnos.</p>
 
     <div id="form-loading" class="coupon reveal">
       <p style="opacity:.6;">Cargando tu invitación…</p>
@@ -350,31 +381,31 @@ footer .fdate{ margin-top:8px; font-size:10.5px; letter-spacing:3px; color:var(-
       </div>
     </div>
 
-    <div id="form-wrap-state" class="coupon reveal" style="display:none;">
-      <h3>¿Nos acompañas?</h3>
-      <div class="form-wrap">
-        <div class="fgroup">
-          <label>Invitación para</label>
-          <div id="guest-name-display" class="guest-name-display">—</div>
+    <div id="form-wrap-state" class="rsvp-card reveal" style="display:none;">
+      <div class="fgroup">
+        <label>Invitación para</label>
+        <div id="guest-name-display" class="guest-name-display">—</div>
+      </div>
+      <p class="adults-note">✦ &nbsp;Aunque adoramos a los pequeños, nuestra boda será un evento exclusivamente para adultos.</p>
+      <div class="fgroup">
+        <label id="attend-label">¿Asistirás?</label>
+        <div class="radio-row" role="group" aria-labelledby="attend-label">
+          <button type="button" class="ropt" id="ryes" aria-pressed="false" onclick="selectAttend('si')">Sí, asistiré</button>
+          <button type="button" class="ropt" id="rno" aria-pressed="false" onclick="selectAttend('no')">No podré ir</button>
         </div>
-        <p class="adults-note">✦ &nbsp;Aunque adoramos a los pequeños, nuestra boda será un evento exclusivamente para adultos.</p>
-        <div class="fgroup">
-          <label>¿Asistirás?</label>
-          <div class="radio-row">
-            <div class="ropt" id="ryes" onclick="selectAttend('si')">Sí, asistiré</div>
-            <div class="ropt" id="rno" onclick="selectAttend('no')">No podré ir</div>
-          </div>
-        </div>
-        <div id="comp-sec" style="display:none;"></div>
-        <button class="btn" onclick="submitForm()">Enviar confirmación</button>
+      </div>
+      <div id="comp-sec" style="display:none;"></div>
+      <div class="rsvp-actions">
+        <button type="button" class="btn" id="submit-btn" onclick="submitForm()">Confirmar asistencia</button>
+        <button type="button" class="cal-btn" onclick="smartAddCalendar()"><svg aria-hidden="true" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>Agregar a mi calendario</button>
         <p id="submit-error" style="display:none;"></p>
+        <p class="rsvp-date">12 · 02 · 2027 · Antigua Guatemala</p>
       </div>
     </div>
 
     <div id="form-already" class="coupon reveal" style="display:none;">
       <h3>¡Gracias por reservar<br>esta fecha con nosotros!</h3>
-      <p id="already-msg"></p>
-      <p>Nos llena de alegría saber que nos acompañarás. Muy pronto compartiremos contigo todos los detalles de nuestra celebración.</p>
+      <p>Nos llena de alegría saber que nos acompañarás.</p>
       <p class="thanks-date">Gian &amp; Alissen · 12 · 02 · 2027</p>
       <div class="cal-section" id="already-cal" style="display:none;">
         <p class="cal-label">Guarda la fecha en tu calendario</p>
@@ -393,7 +424,7 @@ footer .fdate{ margin-top:8px; font-size:10.5px; letter-spacing:3px; color:var(-
 
     <div id="success-wrap" class="coupon reveal" style="display:none;">
       <h3>¡Gracias por reservar<br>esta fecha con nosotros!</h3>
-      <p>Nos llena de alegría saber que nos acompañarás. Muy pronto compartiremos contigo todos los detalles de nuestra celebración.</p>
+      <p>Nos llena de alegría saber que nos acompañarás.</p>
       <p class="thanks-date">Gian &amp; Alissen · 12 · 02 · 2027</p>
       <div class="cal-section">
         <p class="cal-label">Guarda la fecha en tu calendario</p>
@@ -458,19 +489,30 @@ footer .fdate{ margin-top:8px; font-size:10.5px; letter-spacing:3px; color:var(-
       letterVideo.load();
       setTimeout(function(){ if(!letterReady && !failed){ killLetter(); } }, 8000);
 
+      // Starts the dive a beat before the last frame so the camera is already
+      // moving when the flap settles — no freeze between video and transition.
+      var DIVE_LEAD = 0.35;
       function onLetterEnded(){
         if(endedHandled) return;
         endedHandled = true;
-        scene.classList.add('opened');
-        setTimeout(function(){ showRevealsNow(); unlockScroll(); }, 400);
+        scene.classList.add('diving');
+        setTimeout(function(){ scene.classList.add('revealed'); }, 1450);
+        setTimeout(function(){ showRevealsNow(); unlockScroll(); }, 2050);
+      }
+      function watchForEnd(){
+        if(endedHandled) return;
+        var d = letterVideo.duration;
+        if(d && letterVideo.currentTime >= d - DIVE_LEAD){ onLetterEnded(); return; }
+        requestAnimationFrame(watchForEnd);
       }
       function openLetter(){
         if(opened || failed) return;
         opened = true;
         scene.classList.add('opening');
         tryStartAudio();
-        letterVideo.play().catch(function(){});
+        letterVideo.play().then(function(){ requestAnimationFrame(watchForEnd); }).catch(onLetterEnded);
         heroVideo.play().catch(function(){});
+        letterVideo.addEventListener('timeupdate', function(){ if(letterVideo.currentTime >= letterVideo.duration - DIVE_LEAD) onLetterEnded(); });
         letterVideo.addEventListener('ended', onLetterEnded);
         setTimeout(onLetterEnded, (letterVideo.duration ? letterVideo.duration * 1000 : 5000) + 800);
       }
@@ -485,10 +527,20 @@ footer .fdate{ margin-top:8px; font-size:10.5px; letter-spacing:3px; color:var(-
   var playing = false;
   var audioTried = false;
 
+  // Music swells in instead of starting at full volume (iOS ignores volume, so it just plays).
   function tryStartAudio(){
     if(audioTried) return;
     audioTried = true;
-    audio.play().then(function(){ waves.classList.remove('off'); playing = true; }).catch(function(){});
+    audio.volume = 0;
+    audio.play().then(function(){
+      waves.classList.remove('off'); playing = true;
+      var t0 = performance.now();
+      (function fade(now){
+        var k = Math.min(1, (now - t0) / 2500);
+        audio.volume = k * k;
+        if(k < 1) requestAnimationFrame(fade);
+      })(t0);
+    }).catch(function(){ audio.volume = 1; });
   }
 
   window.addEventListener('scroll', tryStartAudio, { passive:true, once:true });
@@ -539,7 +591,7 @@ footer .fdate{ margin-top:8px; font-size:10.5px; letter-spacing:3px; color:var(-
   function showState(id){
     ['form-loading','form-no-token','form-wrap-state','form-already','success-wrap','decline-wrap'].forEach(function(d){
       var el = document.getElementById(d);
-      if(el) el.style.display = (d === id) ? 'block' : 'none';
+      if(el) el.style.display = (d === id) ? '' : 'none';
     });
   }
 
@@ -576,13 +628,7 @@ footer .fdate{ margin-top:8px; font-size:10.5px; letter-spacing:3px; color:var(-
   }
 
   function renderAlreadyConfirmed(){
-    var msg = guestData.asistira
-      ? '¡Confirmaste que asistirás!'
-      : 'Registraste que no podrás asistir.';
-    if(guestData.asistira && guestData.acompanantes && guestData.acompanantes.length > 0){
-      msg += '<br><span style="font-size:13px;color:var(--olive);">Acompañantes: ' + guestData.acompanantes.join(', ') + '</span>';
-    }
-    document.getElementById('already-msg').innerHTML = msg;
+    if(!guestData.asistira){ showState('decline-wrap'); return; }
     var alreadyCal = document.getElementById('already-cal');
     if(alreadyCal) alreadyCal.style.display = guestData.asistira ? '' : 'none';
     showState('form-already');
@@ -590,8 +636,10 @@ footer .fdate{ margin-top:8px; font-size:10.5px; letter-spacing:3px; color:var(-
 
   window.selectAttend = function(v){
     attendVal = v;
-    document.getElementById('ryes').classList.toggle('sel', v === 'si');
-    document.getElementById('rno').classList.toggle('sel', v === 'no');
+    var yes = document.getElementById('ryes'), no = document.getElementById('rno');
+    yes.classList.toggle('sel', v === 'si'); yes.setAttribute('aria-pressed', v === 'si');
+    no.classList.toggle('sel', v === 'no');  no.setAttribute('aria-pressed', v === 'no');
+    document.getElementById('submit-error').style.display = 'none';
     var compSec = document.getElementById('comp-sec');
     var max = (guestData && guestData.maxAcompanantes) || 0;
     if(compSec) compSec.style.display = (v === 'si' && max > 0) ? '' : 'none';
@@ -612,7 +660,7 @@ footer .fdate{ margin-top:8px; font-size:10.5px; letter-spacing:3px; color:var(-
         if(input && input.value.trim()) acompanantes.push(input.value.trim());
       }
     }
-    var btn = document.querySelector('#form-wrap-state .btn');
+    var btn = document.getElementById('submit-btn');
     btn.disabled = true;
     btn.textContent = 'Enviando…';
     db.collection('guests').doc(guestId).update({
@@ -624,7 +672,7 @@ footer .fdate{ margin-top:8px; font-size:10.5px; letter-spacing:3px; color:var(-
       showState(attendVal === 'si' ? 'success-wrap' : 'decline-wrap');
     }).catch(function(){
       btn.disabled = false;
-      btn.textContent = 'Enviar confirmación';
+      btn.textContent = 'Confirmar asistencia';
       var errEl = document.getElementById('submit-error');
       errEl.textContent = 'Error al guardar. Por favor intenta de nuevo.';
       errEl.style.display = '';
