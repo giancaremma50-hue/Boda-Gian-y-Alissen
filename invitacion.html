@@ -165,7 +165,7 @@ html.intro-locked, html.intro-locked body{ overflow:hidden; height:100%; }
 .lede-text .drop{ font-size:2.6em; float:left; line-height:0.8; padding-right:8px; color:var(--cobalt); }
 
 .section{ padding:70px 0; border-top:1px solid var(--rule); }
-.kicker{ font-size:10.5px; letter-spacing:4px; text-transform:uppercase; color:var(--cobalt); margin-bottom:8px; }
+.kicker{ font-size:13px; letter-spacing:4px; text-transform:uppercase; color:var(--cobalt); margin-bottom:8px; }
 .h2{ font-family:'Fraunces',serif; font-style:italic; font-weight:400; font-size:clamp(28px,7vw,40px); margin-bottom:44px; }
 
 .run-item{ display:grid; grid-template-columns:56px 1fr; gap:20px; padding:28px 0; border-top:1px solid var(--rule); align-items:start; }
@@ -177,6 +177,10 @@ html.intro-locked, html.intro-locked body{ overflow:hidden; height:100%; }
 .run-body p{ font-size:14px; color:var(--olive); line-height:1.55; margin-top:6px; }
 .map-btn{ margin-top:16px; display:inline-flex; align-items:center; gap:8px; min-height:44px; padding:0 20px; border:1px solid var(--cobalt); color:var(--cobalt); font-size:10.5px; letter-spacing:2.5px; text-transform:uppercase; text-decoration:none; transition:background .3s; }
 .map-btn:hover{ background:color-mix(in srgb, var(--cobalt) 8%, transparent); }
+.day-date{ font-family:'Fraunces',serif; margin-bottom:28px; }
+.day-date .dow{ display:block; font-style:italic; font-size:clamp(22px,6vw,28px); color:var(--cobalt); }
+.day-date .full{ display:block; font-size:clamp(30px,8.5vw,42px); line-height:1.1; letter-spacing:-.5px; }
+.run-time{ font-family:'Fraunces',serif; font-size:26px; color:var(--cobalt); line-height:1.1; margin-bottom:6px; }
 .run-badge{ display:inline-block; margin-top:10px; font-size:9.5px; letter-spacing:2.5px; text-transform:uppercase; color:var(--cobalt); border-bottom:1px dashed var(--cobalt); padding-bottom:3px; }
 
 .dress-grid{ display:grid; grid-template-columns:repeat(2, minmax(0,1fr)); gap:12px; }
@@ -298,25 +302,26 @@ footer .fdate{ margin-top:8px; font-size:10.5px; letter-spacing:3px; color:var(-
 
 <section class="section" id="itinerario">
   <div class="wrap">
+    <p class="day-date reveal"><span class="dow">Viernes</span><span class="full">12 de febrero 2027</span></p>
     <h2 class="h2 reveal">Itinerario</h2>
     <div class="run-item reveal">
       <div class="run-num">01</div>
       <div class="run-body">
         <h3>Ceremonia</h3>
+        <span class="run-time">3:00 pm</span>
         <span class="venue">Iglesia Escuela de Cristo</span>
-        <p>Calle de los Pasos, Antigua Guatemala</p>
-        <span class="run-badge">Hora por confirmar</span>
-        <a class="map-btn" href="https://www.google.com/maps/search/?api=1&amp;query=Iglesia+Escuela+de+Cristo%2C+Antigua+Guatemala" target="_blank" rel="noopener"><svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg>Cómo llegar</a>
+        <p>Antigua Guatemala</p>
+        <a class="map-btn" href="https://www.google.com/maps/search/?api=1&amp;query=Iglesia+Escuela+de+Cristo%2C+Antigua+Guatemala" target="_blank" rel="noopener"><svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg>Ubicación</a>
       </div>
     </div>
     <div class="run-item reveal">
       <div class="run-num">02</div>
       <div class="run-body">
         <h3>Recepción</h3>
-        <span class="venue">Convento Capuchinas</span>
-        <p>2a Avenida Norte y 2a Calle Oriente, esquina — Antigua Guatemala, Sacatepéquez</p>
-        <span class="run-badge">Hora por confirmar</span>
-        <a class="map-btn" href="https://www.google.com/maps/search/?api=1&amp;query=Convento+Capuchinas%2C+2a+Avenida+Norte+11%2C+Antigua+Guatemala" target="_blank" rel="noopener"><svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg>Cómo llegar</a>
+        <span class="run-time">5:30 pm</span>
+        <span class="venue">Convento Las Capuchinas</span>
+        <p>Antigua Guatemala</p>
+        <a class="map-btn" href="https://www.google.com/maps/search/?api=1&amp;query=Convento+Capuchinas%2C+2a+Avenida+Norte+11%2C+Antigua+Guatemala" target="_blank" rel="noopener"><svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg>Ubicación</a>
       </div>
     </div>
   </div>
@@ -325,7 +330,7 @@ footer .fdate{ margin-top:8px; font-size:10.5px; letter-spacing:3px; color:var(-
 <section class="section" id="vestimenta">
   <div class="wrap">
     <p class="kicker">Código de vestimenta</p>
-    <h2 class="h2 reveal">Formal, todo en negro</h2>
+    <h2 class="h2 reveal">Formal negro</h2>
     <div class="dress-grid reveal">
       <figure>
         <img src="/photos/vestimenta-ellas.png" alt="Vestido largo completamente negro" loading="lazy">
@@ -715,7 +720,7 @@ footer .fdate{ margin-top:8px; font-size:10.5px; letter-spacing:3px; color:var(-
         'PRODID:-//Boda Gian & Alissen//ES',
         'BEGIN:VEVENT',
         'UID:boda-gian-alissen-20270212@boda-gian-y-alissen',
-        'DTSTART:20270212T080000',
+        'DTSTART:20270212T150000',
         'DTEND:20270212T230000',
         'SUMMARY:Boda de Gian & Alissen',
         'LOCATION:Antigua Guatemala',
@@ -732,7 +737,7 @@ footer .fdate{ margin-top:8px; font-size:10.5px; letter-spacing:3px; color:var(-
     } else {
       var gurl = 'https://calendar.google.com/calendar/render?action=TEMPLATE'
         + '&text=Boda+de+Gian+%26+Alissen'
-        + '&dates=20270212T080000%2F20270212T230000'
+        + '&dates=20270212T150000%2F20270212T230000&ctz=America%2FGuatemala'
         + '&details=%C2%A1Nos+casamos%21+Reserva+esta+fecha+especial.'
         + '&location=Antigua+Guatemala';
       window.open(gurl, '_blank', 'noopener');
