@@ -20,8 +20,8 @@
 :root{
   --putty:#e9e4d6;
   --ink:#201f1c;
-  --cobalt:#2b4570;
-  --cobalt-light:#5c7aa6;
+  --cobalt:#1f4a37; /* verde botella */
+  --cobalt-light:#5a7d6a;
   --olive:#615c4f;
   --rule:#cfc9ba;
   --card:#f2eee2;
@@ -181,8 +181,8 @@ html.intro-locked, html.intro-locked body{ overflow:hidden; height:100%; }
 .day-date .dow{ display:block; font-style:italic; font-size:clamp(22px,6vw,28px); color:var(--cobalt); }
 .day-date .full{ display:block; font-size:clamp(30px,8.5vw,42px); line-height:1.1; letter-spacing:-.5px; }
 .run-time{ font-family:'Fraunces',serif; font-size:clamp(22px,6.5vw,26px); color:var(--cobalt); line-height:1.1; margin-bottom:6px; }
-.run-sched{ list-style:none; margin:14px 0 0; padding:0; display:grid; grid-template-columns:max-content 1fr; column-gap:14px; row-gap:10px; align-items:baseline; }
-.run-sched li{ display:grid; grid-template-columns:subgrid; grid-column:1 / -1; align-items:baseline; }
+.run-sched{ list-style:none; margin:14px 0 0; padding:0; display:flex; flex-direction:column; gap:12px; }
+.run-sched li{ display:flex; flex-direction:column; }
 .run-sched .run-time{ margin:0; }
 .run-what{ font-family:'Fraunces',serif; font-style:italic; font-size:clamp(16px,4.6vw,19px); color:var(--ink); }
 .run-badge{ display:inline-block; margin-top:10px; font-size:9.5px; letter-spacing:2.5px; text-transform:uppercase; color:var(--cobalt); border-bottom:1px dashed var(--cobalt); padding-bottom:3px; }
@@ -235,6 +235,7 @@ a.btn{ text-decoration:none; padding:15px 28px; letter-spacing:2px; }
 .rsvp-intro p + p{ margin-top:8px; }
 .rsvp-intro strong{ font-weight:600; color:var(--cobalt); }
 #adultos{ text-align:center; }
+.adults-text.adults-thanks{ margin-top:22px; }
 .adults-text{ margin:0 auto; max-width:400px; font-family:'Fraunces',serif; font-style:italic; font-size:clamp(18px,5vw,22px); line-height:1.6; }
 .rsvp-card{ background:var(--card); border:1px solid var(--rule); padding:28px 22px; display:flex; flex-direction:column; gap:22px; }
 .rsvp-card .fgroup{ margin:0; }
@@ -353,8 +354,8 @@ footer .fdate{ margin-top:8px; font-size:10.5px; letter-spacing:3px; color:var(-
     <h2 class="h2 reveal">Formal negro</h2>
     <div class="dress-grid reveal">
       <figure>
-        <img src="/photos/vestimenta-ellas.png" alt="Vestido largo completamente negro" loading="lazy">
-        <figcaption><p class="dress-who">Ellas</p><p class="dress-what">Vestido completamente negro</p></figcaption>
+        <img src="/photos/vestimenta-ellas.png" alt="Vestido largo negro" loading="lazy">
+        <figcaption><p class="dress-who">Ellas</p><p class="dress-what">Vestido negro</p></figcaption>
       </figure>
       <figure>
         <img src="/photos/vestimenta-ellos.png" alt="Traje formal negro con camisa y corbata negras" loading="lazy">
@@ -396,7 +397,8 @@ footer .fdate{ margin-top:8px; font-size:10.5px; letter-spacing:3px; color:var(-
 
 <section class="section" id="adultos">
   <div class="wrap">
-    <p class="adults-text reveal">Hemos preparado este día con mucho cariño y queremos que todos puedan disfrutarlo al máximo. Por ello, nuestra celebración será únicamente para adultos. Gracias por comprenderlo.</p>
+    <p class="adults-text reveal">Hemos preparado este día con mucho cariño y queremos que todos puedan disfrutarlo al máximo. Por ello, nuestra celebración será únicamente para adultos.</p>
+    <p class="adults-text adults-thanks reveal">Gracias por comprenderlo.</p>
   </div>
 </section>
 
